@@ -13,6 +13,9 @@ TagManager:
   - UI
   - 
   - 
+  - Player
+  - 
+  - Monster
   - 
   - 
   - 
@@ -22,11 +25,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - TileMap
+  - TileMapObject
   - 
   - 
   - 
