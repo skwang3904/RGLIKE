@@ -18,10 +18,10 @@ public class LevelData
 	private LevelData() { }
 
 	public int currStage;
-	public int TILE_TOTAL_NUM;
-	public int TILE_TOTAL_SQRT;
-	public int TILE_CONNECT_NUM;
-	public bool[] TILE_DATA;
+	public int MAP_TOTAL_NUM;
+	public int MAP_TOTAL_SQRT;
+	public int MAP_CONNECT_NUM;
+	public bool[] MAP_DATA;
 
 	//player data
 
@@ -47,10 +47,10 @@ public class LevelData
 		currStage++;
 
 		// 타일데이터 초기화
-		TILE_TOTAL_NUM = 16;
-		TILE_TOTAL_SQRT = (int)Mathf.Sqrt(TILE_TOTAL_NUM);
-		TILE_CONNECT_NUM = TILE_TOTAL_NUM / 2;
-		TILE_DATA = new bool[TILE_TOTAL_NUM];
+		MAP_TOTAL_NUM = 16;
+		MAP_TOTAL_SQRT = (int)Mathf.Sqrt(MAP_TOTAL_NUM);
+		MAP_CONNECT_NUM = MAP_TOTAL_NUM / 2;
+		MAP_DATA = new bool[MAP_TOTAL_NUM];
 
 		//player data
 

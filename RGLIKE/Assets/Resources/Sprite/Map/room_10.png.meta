@@ -108,12 +108,12 @@ TextureImporter:
       name: room_10_0
       rect:
         serializedVersion: 2
-        x: 7
-        y: 0
-        width: 2041
-        height: 2048
+        x: 60
+        y: 60
+        width: 1928
+        height: 1928
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -134,7 +134,7 @@ TextureImporter:
         width: 1928
         height: 1928
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

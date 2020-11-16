@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
 	private void Awake()
 	{
         player = GetComponent<Player>();
-
+        
         movement = Vector2.zero;
 	}
 

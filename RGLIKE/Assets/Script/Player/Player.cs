@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Player : LivingEntity, IDamageable
+public class Player : LivingEntity, IDamageable, IInitialize
 {
     private PlayerController pctrl;
     private BoxCollider2D attackBox;
@@ -103,7 +103,8 @@ public class Player : LivingEntity, IDamageable
 
 	private void FixedUpdate()
 	{
-        rigid.MovePosition((Vector2)transform.position + pctrl.movement * 10 * Time.deltaTime);
+        rigid.MovePosition((Vector2)transform.position 
+            + (pctrl.movement * moveSpeed * Time.deltaTime));
     }
 
 	private void OnTriggerEnter2D(Collider2D collision)
@@ -137,6 +138,17 @@ public class Player : LivingEntity, IDamageable
 
         animator.SetTrigger("Die");
 	}
+
+    public void initialize(int mapNum)
+	{
+        mapNumber = mapNum;
+
+        hp = _hp = 100;
+        dmg = _dmg = 10;
+        attackDt = _attackDt = 1;
+        moveSpeed = 10;
+    }
+
 
     //---------------------------------------------------
     // State function

@@ -23,7 +23,8 @@ public class LivingEntity : MonoBehaviour
 	public int mapNumber;
 	public float hp, _hp;
 	public float dmg, _dmg;
-	public float attackDt, _attackDt;
+	public float attackDt, _attackDt; // 공격속도 : animation 속도
+	public float moveSpeed;
 
 	//public float criticalChance, _criticalChance;
 	//public float evasionChance, _evasionChance;

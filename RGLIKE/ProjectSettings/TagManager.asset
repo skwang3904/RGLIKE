@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Map
+  - MapObject
+  - MapDoor
   layers:
   - Default
   - TransparentFX
@@ -25,9 +28,9 @@ TagManager:
   - 
   - 
   - 
-  - TileMap
-  - TileMapObject
-  - 
+  - Map
+  - MapObject
+  - MapDoor
   - 
   - 
   - 
@@ -38,6 +41,21 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Map
+    uniqueID: 3295747759
+    locked: 0
+  - name: MapDoor
+    uniqueID: 3915598357
+    locked: 0
+  - name: MapObject
+    uniqueID: 2470758571
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Monster
+    uniqueID: 1851675565
+    locked: 0
+  - name: Player
+    uniqueID: 2919235901
     locked: 0
