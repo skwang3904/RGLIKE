@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 
     public Vector2 movement;
     public bool attacking;
+    public bool moving;
 
 	private void Awake()
 	{
@@ -22,8 +23,18 @@ public class PlayerController : MonoBehaviour
             player.state == LivingEntity.entityState.hurt)
             return;
 
-        movement.x = Input.GetAxis("Horizontal");
-        movement.y = Input.GetAxis("Vertical");
+        if(player.state == LivingEntity.entityState.attack)
+		{
+            movement.Set(0, 0);
+		}
+        else
+        {
+            //movement.Set(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            movement.x = Input.GetAxis("Horizontal");
+            movement.y = Input.GetAxis("Vertical");
+        }
+
+        moving = movement != Vector2.zero; 
 
         attacking = Input.GetButton("Fire1");
     }
