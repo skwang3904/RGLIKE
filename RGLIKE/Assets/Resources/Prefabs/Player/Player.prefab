@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1310700086295711725}
   - component: {fileID: 8806079804906708323}
   - component: {fileID: 9085778251961066038}
+  - component: {fileID: 1569953340879799386}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -126,7 +127,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &6239799420066757030
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -215,3 +216,18 @@ MonoBehaviour:
   movement: {x: 0, y: 0}
   attacking: 0
   moving: 0
+--- !u!114 &1569953340879799386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8762567047813200197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1

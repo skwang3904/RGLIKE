@@ -35,10 +35,9 @@ public class Player : LivingEntity, IDamageable, IInitialize
         nextPattern = false;
     }
 
-
     void Update()
     {
-        if (state == entityState.dead)
+        if (state == EntityState.dead)
             return;
 
         // move 입력
@@ -65,12 +64,12 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
         switch (state)
 		{
-            case entityState.idle:
-            case entityState.move:
+            case EntityState.idle:
+            case EntityState.move:
                 {
                     if (pctrl.attacking)
                     {
-                        state = entityState.attack;
+                        state = EntityState.attack;
                         attackBox.enabled = true;
                         nextPattenIndex = 0;
                         rotateAttackBox();
@@ -78,7 +77,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
                     }
                     break;
                 }
-            case entityState.attack:
+            case EntityState.attack:
 			    {
                     if(nextPattern)
 					{
@@ -86,7 +85,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
                         {
                             nextPattern = false;
                             nextPattenIndex++;
-                            print("next");
                         }
                     }
                     break;
@@ -96,7 +94,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
         // test
         if(Input.GetKeyDown(KeyCode.Escape))
 		{
-            if (state != entityState.dead)
+            if (state != EntityState.dead)
 			{
                 onDamage(10000);
 			}
@@ -112,13 +110,13 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-        if(collision.tag == "Monster")
+        if(pctrl.attacking && collision.tag == "Monster")
 		{
             // take damage
             attackBox.enabled = false;
             IDamageable go = collision.GetComponent<IDamageable>();
             if (go != null)
-                go.onDamage(dmg);
+                   go.onDamage(dmg);
             else
                 print("player_OnTrigger_onDamage_type error");
         }
@@ -129,22 +127,22 @@ public class Player : LivingEntity, IDamageable, IInitialize
     // Interface
     public void onDamage(float damage)
 	{
-        if (state == entityState.dead)
+        if (state == EntityState.dead)
             return;
 
         hp -= damage;
         if (hp < 0)
 		{
             hp = 0;
-            state = entityState.dead;
+            state = EntityState.dead;
+            animator.SetTrigger("Die");
 		}
 
-        animator.SetTrigger("Die");
 	}
 
     public void initialize(int mapNum)
 	{
-        state = entityState.idle;
+        state = EntityState.idle;
         mapNumber = mapNum;
         hp = _hp = 100;
         dmg = _dmg = 10;
@@ -157,7 +155,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
     // State function
     private void setStateIdle()
 	{
-        state = entityState.idle;
+        state = EntityState.idle;
 	}
 
     //---------------------------------------------------

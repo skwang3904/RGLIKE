@@ -32,6 +32,9 @@ public class GameManager : MonoBehaviour
     private Vector2 nextMapPos;
     private Vector2 nextMapSize;
 
+    // Monster
+    private Monster[] monsters;
+   
     private void Awake()
 	{
 		if (instance == null)
@@ -45,7 +48,7 @@ public class GameManager : MonoBehaviour
         createPlayer(); // vCamera
 
         //createMapObject();
-        //createMonster();
+        createMonster();
     }
 
 	private void Update()
@@ -82,7 +85,7 @@ public class GameManager : MonoBehaviour
 
         int connectNum = ld.MAP_CONNECT_NUM;
         int totalNum = ld.MAP_TOTAL_NUM;
-        bool[] check = ld.MAP_DATA;
+        ref bool[] check = ref ld.MAP_DATA;
         bool[] visit = new bool[totalNum];
         int random;
         int connected = 0;
@@ -121,6 +124,21 @@ public class GameManager : MonoBehaviour
         maps = new Map[totalNum];
         for (i = 0; i < totalNum; i++)
             connectCountCheck(check, i);
+
+        for (i = totalNum - 1; i > -1; i--)
+		{
+            if (maps[i])
+			{
+                Destroy(maps[i].gameObject);
+
+                loadMapPrefabs(IMacro.MapName[(int)IMacro.MAP_NAME.room_boss0], i);
+                maps[i].mapNumber = i;
+                maps[i].state = MapState.boss;
+                break;
+			}
+		}
+        
+        
     }
 
     private void connectMapData(bool[] visit, bool[] check, int index, ref int connected)
@@ -219,22 +237,33 @@ public class GameManager : MonoBehaviour
         }
 
         string name = IMacro.MapName[n];
+        loadMapPrefabs(name, i);
+    }
+
+    private void loadMapPrefabs(string name, int i)
+	{
+        LevelData ld = LevelData.instance;
+        int sqrt = ld.MAP_TOTAL_SQRT;
+
         GameObject g = Instantiate(Resources.Load("Prefabs/Map/" + name)) as GameObject;
         g.transform.SetParent(GameObject.Find("Maps").transform);
+
         Sprite sp = g.GetComponent<SpriteRenderer>().sprite;
-        float width = sp.bounds.size.x;
-        float height = sp.bounds.size.y;
+        int width = Mathf.FloorToInt(sp.bounds.size.x);
+        int height = Mathf.FloorToInt(sp.bounds.size.y);
         Vector3 position = new Vector3(width * (i % sqrt), height * (i / sqrt), 0);
         g.transform.position = position;
+
         maps[i] = g.GetComponent<Map>();
         maps[i].mapNumber = i;
-	}
+        maps[i].state = MapState.nomal;
+    }
 
     //---------------------------------------------------------------------------
     // createPlayer
     private void createPlayer()
 	{
-        int i, totalNum;
+        int totalNum;
         LevelData ld = LevelData.instance;
         totalNum = ld.MAP_TOTAL_NUM;
 
@@ -243,7 +272,7 @@ public class GameManager : MonoBehaviour
 		{
             int random = Random.Range(0, totalNum);
             Map m = maps[random];
-            if (m != null)
+            if (m != null && maps[random].state == MapState.nomal)
 			{
                 g.transform.position = m.transform.Find("PlayerSpawn").position;
                 player = g.GetComponent<Player>();
@@ -268,6 +297,55 @@ public class GameManager : MonoBehaviour
 
     //---------------------------------------------------------------------------
     // createMonster
+
+    private void createMonster()
+	{
+        LevelData ld = LevelData.instance;
+        int total = ld.MAP_TOTAL_NUM;
+        int i, j, sum = 0;
+
+        for (i = 0; i < total; i++)
+		{
+            // 스테이지 총 몬스터 소환 되는 수
+            if (!maps[i])
+                continue;
+            if (i == player.mapNumber)
+                continue;
+
+            sum += maps[i].transform.Find("MonsterSpawn").childCount;
+		}
+
+        monsters = new Monster[sum];
+
+        GameObject g;
+        GameObject monsterParent = GameObject.Find("Monsters");
+        Monster m;
+        Transform t;
+        int num;
+        for (i = 0; i < total; i++) 
+		{
+            if (maps[i] == null || i == player.mapNumber)
+                continue;
+
+            t = maps[i].transform.Find("MonsterSpawn");
+            if (t == null)
+                continue;
+
+            num = t.childCount;
+
+            for (j = 0; j < num; j++) 
+			{
+                g = Instantiate(Resources.Load("Prefabs/Monster/Anubis"),
+                    t.GetChild(j).transform.position,
+                    Quaternion.identity) as GameObject;
+                g.transform.SetParent(monsterParent.transform);
+
+                m = g.GetComponent<Monster>();
+                m.initialize(i);
+			}
+        }
+        
+	}
 
     //---------------------------------------------------------------------------
     // passMap

@@ -8,18 +8,10 @@ public class LivingEntity : MonoBehaviour
 	public Animator animator { get; protected set; }
 	public SpriteRenderer spriteRenderer { get; protected set; }
 	public BoxCollider2D hitBox { get; protected set; }
+	public BoxCollider2D moveBox { get; protected set; }
 	//private ParticleSystem particle;
 
-	public enum entityState
-	{
-		idle = 0,
-		move,
-		attack,
-		hurt,
-		dead,
-	}
-
-	public entityState state;
+	public EntityState state;
 	public int mapNumber;
 	public float hp, _hp;
 	public float dmg, _dmg;
@@ -34,7 +26,9 @@ public class LivingEntity : MonoBehaviour
 		rigid = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
-		hitBox = GetComponent<BoxCollider2D>();
-	}
 
+		BoxCollider2D[] box = GetComponents<BoxCollider2D>();
+		hitBox = box[0];
+		moveBox = box[1];
+	}
 }

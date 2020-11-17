@@ -28,6 +28,8 @@ public static class IMacro
 		room_1way2,
 		room_1way3,
 
+		room_boss0,
+
 		MAX,
 	}
 
@@ -52,5 +54,6 @@ public static class IMacro
 		"room_1way2",
 		"room_1way3",
 
+		"room_boss0",
 	};
 }

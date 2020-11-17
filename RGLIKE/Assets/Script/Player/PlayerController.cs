@@ -25,14 +25,14 @@ public class PlayerController : MonoBehaviour
             return;
 		}
 
-        if (player.state == LivingEntity.entityState.dead ||
-            player.state == LivingEntity.entityState.hurt)
+        if (player.state == EntityState.dead ||
+            player.state == EntityState.hurt)
 		{
             allInputZero();
             return;
 		}
 
-        if(player.state == LivingEntity.entityState.attack)
+        if(player.state == EntityState.attack)
 		{
             movement.Set(0, 0);
 		}

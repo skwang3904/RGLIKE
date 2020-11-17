@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Map : MonoBehaviour
 {
+	
 	public SpriteRenderer spriteRenderer;
 
 	private GameObject[] doors; // 맵의 각 문 // 딱히 없어도될듯?
@@ -12,10 +13,11 @@ public class Map : MonoBehaviour
 	private Sprite[,] doorSprites; // 문의 총 스프라이트
 	private int[] doorIndex; // 문의 각 인덱스 0:close, 1:open, 2:closeKey
 
+	public MapState state;
 	public int mapNumber;
 
 	private Player player;
-	private GameObject[] monsters; // 몬스터 만들고 수정
+	private Monster[] monsters; // 몬스터 만들고 수정
 
 	private void Awake()
 	{
@@ -55,7 +57,6 @@ public class Map : MonoBehaviour
 			if (i < 2)	obj.transform.localScale = new Vector3(1.5f, 3f, 0);
 			else		obj.transform.localScale = new Vector3(3f, 1.5f, 0);
 
-			SpriteRenderer spr = obj.AddComponent<SpriteRenderer>();
 			for (j = 0; j < 3; j++)
 			{
 				Sprite sp = Resources.Load<Sprite>("Sprite/Map/Doors/door_" + i + "_" + j);
@@ -63,6 +64,8 @@ public class Map : MonoBehaviour
 				
 				doorSprites[i, j] = sp;
 			}
+
+			SpriteRenderer spr = obj.AddComponent<SpriteRenderer>();
 			spr.sprite = doorSprites[i, doorIndex[i]];
 			spr.sortingLayerName = "MapDoor";
 			if (spr.sortingLayerID == 0)
@@ -77,26 +80,39 @@ public class Map : MonoBehaviour
 
 	private void Start()
 	{
-		player = GameManager.instance.player;
 		int i, j = 0;
-#if false
-// 몬스터 생성 후 이 맵번호와 같은 맵번호를 가진 몬스터를
-// 저장시키고 업데이트에 검사하여 문을 열거나 닫음
-		int mNum = transform.Find("MonsterSpawn").GetChildCount();
-		monsters = new GameObject[mNum];
+		player = GameManager.instance.player;
+		// 이 맵번호와 같은 맵번호를 가진 몬스터를 검사하여 문을 열거나 닫음
+		int mNum = transform.Find("MonsterSpawn").childCount;
 
-		GameObject Monsters = GameObject.Find("Monsters");
-		mNum = Monsters.transform.GetChildCount();
-		for (i = 0; i < mNum; i++)
+		if (mapNumber != player.mapNumber)
 		{
-			LivingEntity m = Monsters.transform.GetChild(i).GetComponent<LivingEntity>();
-			if(m.mapNumber == mapNumber)
+			monsters = new Monster[mNum];
+			GameObject mons = GameObject.Find("Monsters");
+			mNum = mons.transform.childCount;
+			for (i = 0; i < mNum; i++)
 			{
-				monsters[j++] = m.gameObject;
+				Monster m = mons.transform.GetChild(i).GetComponent<Monster>();
+				if (m.mapNumber == mapNumber)
+					monsters[j++] = m;
 			}
-
 		}
-#endif
+
+		if(state == MapState.boss ||
+			state == MapState.shop)
+		{
+			LevelData ld = LevelData.instance;
+			ref bool[] check = ref ld.MAP_DATA;
+			int sqrt = ld.MAP_TOTAL_SQRT;
+			int n = mapNumber;
+			
+
+			// 보스방 & 상점 검사
+			if (n % sqrt == 0		 || check[n - 1] == false) doorLocked(0);
+			if (n % sqrt == sqrt - 1 || check[n + 1] == false) doorLocked(1);
+			if (n / sqrt == sqrt - 1 || check[n + sqrt] == false) doorLocked(2);
+			if (n / sqrt == 0		 || check[n - sqrt] == false) doorLocked(3);
+		}
 	}
 
 	private void Update()
@@ -104,11 +120,12 @@ public class Map : MonoBehaviour
 		if (mapNumber != player.mapNumber)
 			return;
 
-		if(Input.GetKeyDown(KeyCode.J))
+		int i;
+		if(Input.GetKeyDown(KeyCode.J)) // just test
 		{
-			for (int i = 0; i < 4; i++) 
+			for (i = 0; i < 4; i++) 
 			{
-				if (doorSpriteRenderers[i] == null) continue;
+				if (doors[i] == null) continue;
 
 				doorIndex[i]++;
 				if (doorIndex[i] > 2)
@@ -117,7 +134,32 @@ public class Map : MonoBehaviour
 			}
 		}
 
-		for (int i = 0; i < 4; i++) 
+		bool check = true;
+		if (monsters != null)
+		{
+			for (i = 0; i < monsters.Length; i++)
+			{
+				if (monsters[i].state != EntityState.dead)
+				{
+					check = false;
+					break;
+				}
+			}
+		}
+
+		if(check)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				if (doors[i] == null) continue;
+
+				doorIndex[i] = 1;
+				doorSpriteRenderers[i].sprite = doorSprites[i, doorIndex[i]];
+			}
+		}
+
+
+		for (i = 0; i < 4; i++) 
 		{
 			if(doorsCollider[i] != null)
 			{
@@ -142,5 +184,12 @@ public class Map : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	private void doorLocked(int dir)
+	{
+		SpriteRenderer spr = doors[dir].transform.GetChild(0).GetComponent<SpriteRenderer>();
+		spr.sprite = null;
+		doors[dir] = null;
 	}
 }
