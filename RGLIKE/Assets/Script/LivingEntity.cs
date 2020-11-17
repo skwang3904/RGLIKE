@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class LivingEntity : MonoBehaviour
 {
-	protected Rigidbody2D rigid;
-	protected Animator animator;
-	protected SpriteRenderer spriteRenderer;
-	protected BoxCollider2D hitBox;
+	public Rigidbody2D rigid { get; protected set; }
+	public Animator animator { get; protected set; }
+	public SpriteRenderer spriteRenderer { get; protected set; }
+	public BoxCollider2D hitBox { get; protected set; }
 	//private ParticleSystem particle;
 
 	public enum entityState

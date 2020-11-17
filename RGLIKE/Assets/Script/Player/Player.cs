@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Cinemachine;
 
 public class Player : LivingEntity, IDamageable, IInitialize
 {
+    // controller
     private PlayerController pctrl;
+    private float aniX, aniY;
+
+    //attacks
     private BoxCollider2D attackBox;
     private Vector2 attackBoxOffset;
     private Vector2 attackBoxSize;
-     
-    private float aniX, aniY;
     private int currPattenIndex;
     private int nextPattenIndex;
     private bool nextPattern;
@@ -20,23 +23,24 @@ public class Player : LivingEntity, IDamageable, IInitialize
         base.Awake();
 
         pctrl = GetComponent<PlayerController>();
+        aniX = 0; 
+        aniY = 0;
+
         attackBox = GetComponents<BoxCollider2D>()[1];
         attackBox.enabled = false;
         attackBoxOffset = attackBox.offset;
         attackBoxSize = new Vector2(3, 1);
-
         currPattenIndex = -1;
         nextPattenIndex = -1;
         nextPattern = false;
     }
 
-	void Start()
-    {
-        
-    }
 
     void Update()
     {
+        if (state == entityState.dead)
+            return;
+
         // move 입력
         aniX = pctrl.movement.x;
         aniY = pctrl.movement.y;
@@ -46,7 +50,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
         animator.SetFloat("moveY", aniY);
         animator.SetBool("moving", pctrl.moving);
 
-        if(aniY != 0)
+        if(aniY != 0) // #issue 히트박스 회전부분 개선필요
 		{
             if (aniY > 0)   attackBoxOffset.Set(0, 0.5f);
             else            attackBoxOffset.Set(0, -1);
@@ -88,7 +92,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
                     break;
 			    }
         }
-
 
         // test
         if(Input.GetKeyDown(KeyCode.Escape))
@@ -141,8 +144,8 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
     public void initialize(int mapNum)
 	{
+        state = entityState.idle;
         mapNumber = mapNum;
-
         hp = _hp = 100;
         dmg = _dmg = 10;
         attackDt = _attackDt = 1;

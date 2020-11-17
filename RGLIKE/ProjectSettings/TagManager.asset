@@ -7,6 +7,7 @@ TagManager:
   - Map
   - MapObject
   - MapDoor
+  - VirtualCamera
   layers:
   - Default
   - TransparentFX
@@ -39,7 +40,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - VirtualCamera
   m_SortingLayers:
   - name: Map
     uniqueID: 3295747759

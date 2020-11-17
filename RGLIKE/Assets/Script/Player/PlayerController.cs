@@ -19,9 +19,18 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.instance.isPassMap())
+		{
+            allInputZero();
+            return;
+		}
+
         if (player.state == LivingEntity.entityState.dead ||
             player.state == LivingEntity.entityState.hurt)
+		{
+            allInputZero();
             return;
+		}
 
         if(player.state == LivingEntity.entityState.attack)
 		{
@@ -33,9 +42,18 @@ public class PlayerController : MonoBehaviour
             movement.x = Input.GetAxis("Horizontal");
             movement.y = Input.GetAxis("Vertical");
         }
-
+        movement.Normalize();
+        
+        // #issue 방향 입력 유지되는것 수정
         moving = movement != Vector2.zero; 
 
         attacking = Input.GetButton("Fire1");
+    }
+
+    private void allInputZero()
+	{
+        movement.Set(0, 0);
+        attacking = false;
+        moving = false;
     }
 }

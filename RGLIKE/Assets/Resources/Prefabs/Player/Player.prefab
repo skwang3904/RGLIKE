@@ -199,6 +199,7 @@ MonoBehaviour:
   _dmg: 0
   attackDt: 0
   _attackDt: 0
+  moveSpeed: 0
 --- !u!114 &9085778251961066038
 MonoBehaviour:
   m_ObjectHideFlags: 0

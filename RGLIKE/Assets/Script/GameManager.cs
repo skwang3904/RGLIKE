@@ -2,17 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance { get; private set; }
-    private Map[] maps;
-    private Player player;
 
+    // Score
     private int totalScore = 0;
     private int currStageScore = 0;
     private float totalPlayTime = 0;
     private float currStageTime = 0;
+
+    // Map
+    private Map[] maps;
+
+    // Player
+    public Player player { get; private set; }
+
+    //virtual camera
+    public CinemachineVirtualCamera vCamera;
+    private GameObject vCameraCollider;
+    private float passMapDt;
+    private const float _passMapDt = 1f;
+    private int currMapNumber;
+    private Vector2 currMapPos;
+    private Vector2 currMapSize;
+    private int nextMapNumber;
+    private Vector2 nextMapPos;
+    private Vector2 nextMapSize;
+
     private void Awake()
 	{
 		if (instance == null)
@@ -22,8 +41,9 @@ public class GameManager : MonoBehaviour
 		DontDestroyOnLoad(gameObject);
 
         
-        createMap();
-        createPlayer();
+        createMap(); // maps[]
+        createPlayer(); // vCamera
+
         //createMapObject();
         //createMonster();
     }
@@ -32,6 +52,8 @@ public class GameManager : MonoBehaviour
 	{
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
+
+        passMapAnimation();
     }
 
     public void addScore(int hp)
@@ -229,7 +251,16 @@ public class GameManager : MonoBehaviour
                 break;
 			}
         }
-	}
+
+        vCameraCollider = GameObject.Find("vCameraCollider");
+        vCameraCollider.transform.position = maps[player.mapNumber].transform.position;
+
+        vCamera = GameObject.Find("vCamera").GetComponent<CinemachineVirtualCamera>();
+        vCamera.Follow = player.transform;
+
+        currMapNumber = nextMapNumber = player.mapNumber;
+        passMapDt = _passMapDt;
+}
 
 
     //---------------------------------------------------------------------------
@@ -237,4 +268,63 @@ public class GameManager : MonoBehaviour
 
     //---------------------------------------------------------------------------
     // createMonster
+
+    //---------------------------------------------------------------------------
+    // passMap
+    public bool isPassMap()
+	{
+        return passMapDt != _passMapDt;
+    }
+    public void passMapStart(int mapNum)
+	{
+        if(currMapNumber == mapNum)
+		{
+            print("Same PassMapNumber");
+            return;
+		}
+
+        if (passMapDt != _passMapDt)
+            return;
+
+        nextMapNumber = mapNum;
+        passMapDt = 0;
+
+        Map curr = maps[currMapNumber];
+        Map next = maps[nextMapNumber];
+
+        currMapPos = curr.transform.position;
+        currMapSize = curr.spriteRenderer.sprite.bounds.size;
+
+        nextMapPos = next.transform.position;
+        nextMapSize = next.spriteRenderer.sprite.bounds.size;
+
+        // #issue 임의로 만든 값
+        player.transform.position = 
+            (Vector2)player.transform.position 
+            + (nextMapPos - currMapPos) * 0.4f;
+    }
+
+    private void passMapAnimation()
+	{
+        if (currMapNumber == nextMapNumber)
+            return;
+
+        passMapDt += Time.deltaTime;
+        if(passMapDt >= _passMapDt)
+		{
+            currMapNumber = nextMapNumber;
+            player.mapNumber = currMapNumber;
+            passMapDt = _passMapDt;
+		}
+
+        float dt = passMapDt / _passMapDt;
+
+        vCameraCollider.transform.position = Vector2.Lerp(
+            currMapPos,
+            nextMapPos,
+            dt);
+
+        BoxCollider2D box = vCameraCollider.GetComponent<BoxCollider2D>();
+        box.size = Vector2.Lerp(currMapSize, nextMapSize, dt);
+    }
 }
