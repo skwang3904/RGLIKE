@@ -12,18 +12,13 @@ public interface IInitialize
 	void initialize(int mapNum);
 }
 
-public enum EntityState
+public interface IItem
 {
-	idle = 0,
-	move,
-	attack,
-	hurt,
-	dead,
+	void initialize(int mapNum, Vector2 position);
+	void onUse();
 }
 
-public enum MapState
+public interface IMapObject
 {
-	nomal = 0,
-	boss,
-	shop,
+	void initialize(int mapNum, Vector2 position);
 }

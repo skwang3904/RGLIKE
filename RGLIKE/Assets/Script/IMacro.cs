@@ -56,4 +56,62 @@ public static class IMacro
 
 		"room_boss0",
 	};
+
+	//---------------------------------------------------------------
+
+	public enum Item_Name
+	{
+		Gold = 0,
+		Potion,
+
+		Max,
+	}
+
+	public static string[] ItemName =
+	{
+		"Gold",
+		"Potion",
+
+	};
+
+}
+
+//---------------------------------------------------------------
+// enum
+
+public enum EntityState
+{
+	idle = 0,
+	move,
+	attack,
+	hurt,
+	dead,
+}
+
+public enum NonEntityState
+{
+	NonAppear = 0,
+	Appear,
+	Idle,
+	Active,
+	Disappear,
+	dead,
+
+	Hurt,
+}
+
+public enum MapObjectType
+{
+	wall = 0,
+	broken,
+	trap,
+	onoff,
+	trigger,
+}
+
+public enum MapState
+{
+	nomal = 0,
+	boss,
+	shop,
 }

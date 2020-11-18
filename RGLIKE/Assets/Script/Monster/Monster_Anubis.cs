@@ -9,6 +9,11 @@ public class Monster_Anubis : Monster
 		base.Awake();
 	}
 
+	private void Start()
+	{
+		randMove();
+	}
+
 	private void Update()
 	{
 		if (mapNumber != player.mapNumber)
@@ -24,34 +29,15 @@ public class Monster_Anubis : Monster
 				{
 					if (target == null)
 					{
-						if (moveDt < _moveDt)
-						{
-							moveDt += Time.deltaTime;
-							if (moveDt > _moveDt)
-							{
-								moveDt = _moveDt;
-								stayDt = 0;
-								animator.SetBool("Walk", false);
-							}
-						}
-
-						if (stayDt < _stayDt)
-						{
-							stayDt += Time.deltaTime;
-							if (stayDt > _stayDt)
-							{
-								randMove();
-							}
-
-						}
+						whemTargetNullRandomMove();
 
 						if (distanceToPlayer < eyeRangeToTarget)
 						{
 							target = player;
-							break;
 						}
 					}
-					else
+					
+					if(target)
 					{
 						if (distanceToPlayer > eyeRangeToTarget)
 						{
@@ -143,7 +129,6 @@ public class Monster_Anubis : Monster
 		if(state == EntityState.dead)
 		{
 			initState();
-			moveBox.isTrigger = true;
 		}
 	}
 
@@ -154,33 +139,5 @@ public class Monster_Anubis : Monster
 		initState();
 	}
 
-	private void initState()
-	{
-		target = null;
-		v2target = Vector2.zero;
-		eyeRangeToTarget = 5;
-		attackRangeToTarget = 2;
 
-		moveDt = _moveDt = 1f;
-		stayDt = _stayDt = 1f;
-		v2Random = Vector2.zero;
-		flip = false;
-
-		attackPattern = -1;
-		isAttack = false;
-	}
-
-	private void randMove()
-	{
-		moveDt = 0;
-		_moveDt = Random.Range(1f, 2f);
-		stayDt = _stayDt = Random.Range(0f, 1f);
-
-		float x = Random.Range(-1f, 1f);
-		float y = Random.Range(-1f, 1f);
-		v2Random = new Vector2(x, y).normalized;
-		animator.SetBool("Walk", true);
-
-		flip = x < 0;
-	}
 }

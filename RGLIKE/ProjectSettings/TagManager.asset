@@ -9,6 +9,7 @@ TagManager:
   - MapDoor
   - VirtualCamera
   - Monster
+  - Item
   layers:
   - Default
   - TransparentFX
@@ -36,7 +37,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Item
   - 
   - 
   - 
@@ -54,6 +55,9 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Item
+    uniqueID: 2478376095
     locked: 0
   - name: Monster
     uniqueID: 1851675565

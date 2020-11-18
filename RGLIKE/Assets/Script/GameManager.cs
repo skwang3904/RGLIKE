@@ -13,9 +13,13 @@ public class GameManager : MonoBehaviour
     private int currStageScore = 0;
     private float totalPlayTime = 0;
     private float currStageTime = 0;
+    public int gold;
 
     // Map
     private Map[] maps;
+
+    // Items
+    public Item[,] items;
 
     // Player
     public Player player { get; private set; }
@@ -43,7 +47,8 @@ public class GameManager : MonoBehaviour
 			Destroy(gameObject);
 		DontDestroyOnLoad(gameObject);
 
-        
+        createItems(); // items[]
+
         createMap(); // maps[]
         createPlayer(); // vCamera
 
@@ -51,7 +56,7 @@ public class GameManager : MonoBehaviour
         createMonster();
     }
 
-	private void Update()
+    private void Update()
 	{
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
@@ -137,8 +142,6 @@ public class GameManager : MonoBehaviour
                 break;
 			}
 		}
-        
-        
     }
 
     private void connectMapData(bool[] visit, bool[] check, int index, ref int connected)
@@ -291,6 +294,32 @@ public class GameManager : MonoBehaviour
         passMapDt = _passMapDt;
 }
 
+    //---------------------------------------------------------------------------
+    // createItems
+
+    private void createItems()
+	{
+        int i, j;
+        int kinds = (int)IMacro.Item_Name.Max;
+        int num = Item.Max_itemNum;
+        items = new Item[kinds, num];
+
+        ref string[] istr = ref IMacro.ItemName;
+        GameObject g;
+        GameObject parent = GameObject.Find("Items");
+        for (i = 0; i < kinds; i++)
+        {
+            for (j = 0; j < num; j++) 
+			{
+                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
+                //g.GetComponent<SpriteRenderer>().sprite = null;
+
+                g.transform.SetParent(parent.transform);
+                g.transform.Translate(-100, -100, 0);
+                items[i, j] = g.GetComponent<Item>();
+			}
+        }
+    }
 
     //---------------------------------------------------------------------------
     // createMapObject
@@ -322,6 +351,7 @@ public class GameManager : MonoBehaviour
         Monster m;
         Transform t;
         int num;
+        string str;
         for (i = 0; i < total; i++) 
 		{
             if (maps[i] == null || i == player.mapNumber)
@@ -332,10 +362,14 @@ public class GameManager : MonoBehaviour
                 continue;
 
             num = t.childCount;
+            if(maps[i].state == MapState.boss)
+                str = "Prefabs/Monster/Destroyer";
+            else
+                str = "Prefabs/Monster/Anubis";
 
             for (j = 0; j < num; j++) 
 			{
-                g = Instantiate(Resources.Load("Prefabs/Monster/Anubis"),
+                g = Instantiate(Resources.Load(str),
                     t.GetChild(j).transform.position,
                     Quaternion.identity) as GameObject;
                 g.transform.SetParent(monsterParent.transform);

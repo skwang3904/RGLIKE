@@ -110,17 +110,23 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-        if(pctrl.attacking && collision.tag == "Monster")
-		{
-            // take damage
-            attackBox.enabled = false;
-            IDamageable go = collision.GetComponent<IDamageable>();
-            if (go != null)
-                   go.onDamage(dmg);
-            else
-                print("player_OnTrigger_onDamage_type error");
-        }
+        if (pctrl.attacking)
+        {
+            if (collision.tag == "Monster")
+            {
+                // take damage
+                attackBox.enabled = false;
+                IDamageable go = collision.GetComponent<IDamageable>();
+                go.onDamage(dmg);
+            }
 
+            else if (collision.tag == "MapObject")
+			{
+                attackBox.enabled = false;
+                IDamageable go = collision.GetComponent<IDamageable>();
+                go.onDamage(dmg);
+            }
+        }
     }
 
     //---------------------------------------------------
@@ -136,7 +142,9 @@ public class Player : LivingEntity, IDamageable, IInitialize
             hp = 0;
             state = EntityState.dead;
             animator.SetTrigger("Die");
-		}
+
+            deadMethod?.Invoke();
+        }
 
 	}
 

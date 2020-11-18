@@ -103,6 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 0}
+  state: 0
   mapNumber: 0
 --- !u!50 &6454229392623570448
 Rigidbody2D:

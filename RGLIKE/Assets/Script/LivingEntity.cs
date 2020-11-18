@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ public class LivingEntity : MonoBehaviour
 
 	//public float criticalChance, _criticalChance;
 	//public float evasionChance, _evasionChance;
+	public Action deadMethod;
 
 	protected virtual void Awake()
 	{
@@ -30,5 +32,6 @@ public class LivingEntity : MonoBehaviour
 		BoxCollider2D[] box = GetComponents<BoxCollider2D>();
 		hitBox = box[0];
 		moveBox = box[1];
+
 	}
 }
