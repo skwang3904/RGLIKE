@@ -12,24 +12,33 @@ public class MapObject_Lever : MapObject
 		active += whenLeverOn;
 	}
 
-	private void OnTriggerStay2D(Collider2D collision)
+	private void FixedUpdate()
 	{
-		if(collision.tag == "Player")
+		if (animator.GetBool("OnOff") != OnOff)
+			return;
+
+		if(touchBox.IsTouching(player.hitBox))
 		{
-			if(Input.GetKeyDown(KeyCode.J))
+			print("touch");
+			if (Input.GetKeyDown(KeyCode.J))
 			{
-				OnOff = !OnOff;
-				animator.SetBool("", OnOff);
-				if (OnOff)
-					active?.Invoke();
+				animator.SetBool("OnOff", !OnOff);
 			}
 		}
 	}
+
 	//------------------------------------------------------
 
 	private void whenLeverOn()
 	{
-		Item.monsterDropItem(mapNumber, (Vector2)transform.position + Random.insideUnitCircle * 2 ,
+		Item.dropItem(mapNumber, (Vector2)transform.position + Random.insideUnitCircle * 2 ,
 			IMacro.Item_Name.Gold, 1);
+	}
+
+	private void aniLeverCtrl()
+	{
+		OnOff = !OnOff;
+		if (OnOff)
+			active?.Invoke();
 	}
 }

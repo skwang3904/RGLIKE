@@ -173,6 +173,6 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 
 	private void dropItemWhenDead()
 	{
-		Item.monsterDropItem(mapNumber, transform.position, IMacro.Item_Name.Potion, 1);
+		Item.dropItem(mapNumber, transform.position, IMacro.Item_Name.Potion, 1);
 	}
 }

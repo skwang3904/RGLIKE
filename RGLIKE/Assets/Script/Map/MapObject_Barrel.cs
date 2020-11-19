@@ -39,7 +39,7 @@ public class MapObject_Barrel : MapObject
 
 	private void dropItemWhenBroken()
 	{
-		Item.monsterDropItem(mapNumber, transform.position, 
+		Item.dropItem(mapNumber, transform.position, 
 			IMacro.Item_Name.Gold, 1);
 	}
 

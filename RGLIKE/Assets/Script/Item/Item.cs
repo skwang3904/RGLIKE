@@ -5,7 +5,15 @@ using UnityEngine;
 
 public class Item : NonLivingEntity, IItem
 {
+	public static Item[,] items = null;
 	public static int Max_itemNum = 10;
+	public static void createItems()
+	{
+		if (items != null)
+			return;
+		items = new Item[(int)IMacro.Item_Name.Max, Max_itemNum];
+	}
+
 	public Vector2 appearPosition;
 	public float appearHeight;
 
@@ -35,18 +43,15 @@ public class Item : NonLivingEntity, IItem
 
 	//-------------------------------------------------------
 
-	public static void monsterDropItem(int mapNum, Vector2 position, 
+	public static void dropItem(int mapNum, Vector2 position, 
 		IMacro.Item_Name index, int num)
 	{
 		int i, idx = (int)index;
-		GameManager g = GameManager.instance;
-
 		int n = 0;
 
-		print(Max_itemNum);
 		for (i = 0; i < Max_itemNum; i++) 
 		{
-			Item it = g.items[idx, i];
+			Item it = items[idx, i];
 			if (it.state == NonEntityState.NonAppear)
 			{
 				it.initialize(mapNum, position);

@@ -9,17 +9,17 @@ public class GameManager : MonoBehaviour
     public static GameManager instance { get; private set; }
 
     // Score
-    private int totalScore = 0;
-    private int currStageScore = 0;
-    private float totalPlayTime = 0;
-    private float currStageTime = 0;
+    public int totalScore = 0;
+    public int currStageScore = 0;
+    public float totalPlayTime = 0;
+    public float currStageTime = 0;
     public int gold;
 
     // Map
-    private Map[] maps;
+    public Map[] maps { get; private set; }
 
     // Items
-    public Item[,] items;
+    //public Item[,] items;
 
     // Player
     public Player player { get; private set; }
@@ -47,12 +47,12 @@ public class GameManager : MonoBehaviour
 			Destroy(gameObject);
 		DontDestroyOnLoad(gameObject);
 
-        createItems(); // items[]
+        createItems(); // items[] 풀메모리
 
         createMap(); // maps[]
         createPlayer(); // vCamera
 
-        //createMapObject();
+        createMapObject();
         createMonster();
     }
 
@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
 
+        //print("Time : [" + Mathf.FloorToInt(totalPlayTime) + "] gold : [" + gold +"]");
         passMapAnimation();
     }
 
@@ -263,6 +264,32 @@ public class GameManager : MonoBehaviour
     }
 
     //---------------------------------------------------------------------------
+    // createItems
+    private void createItems()
+    {
+        int i, j;
+        Item.createItems();
+        int kinds = (int)IMacro.Item_Name.Max;
+        int num = Item.Max_itemNum;
+
+        ref string[] istr = ref IMacro.ItemName;
+        GameObject g;
+        GameObject parent = GameObject.Find("Items");
+        for (i = 0; i < kinds; i++)
+        {
+            for (j = 0; j < num; j++)
+            {
+                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
+                //g.GetComponent<SpriteRenderer>().sprite = null;
+
+                g.transform.SetParent(parent.transform);
+                g.transform.Translate(-100, -100, 0);
+                Item.items[i, j] = g.GetComponent<Item>();
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------------
     // createPlayer
     private void createPlayer()
 	{
@@ -292,41 +319,19 @@ public class GameManager : MonoBehaviour
 
         currMapNumber = nextMapNumber = player.mapNumber;
         passMapDt = _passMapDt;
-}
-
-    //---------------------------------------------------------------------------
-    // createItems
-
-    private void createItems()
-	{
-        int i, j;
-        int kinds = (int)IMacro.Item_Name.Max;
-        int num = Item.Max_itemNum;
-        items = new Item[kinds, num];
-
-        ref string[] istr = ref IMacro.ItemName;
-        GameObject g;
-        GameObject parent = GameObject.Find("Items");
-        for (i = 0; i < kinds; i++)
-        {
-            for (j = 0; j < num; j++) 
-			{
-                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
-                //g.GetComponent<SpriteRenderer>().sprite = null;
-
-                g.transform.SetParent(parent.transform);
-                g.transform.Translate(-100, -100, 0);
-                items[i, j] = g.GetComponent<Item>();
-			}
-        }
     }
+
+
 
     //---------------------------------------------------------------------------
     // createMapObject
+    private void createMapObject()
+	{
+
+    }
 
     //---------------------------------------------------------------------------
     // createMonster
-
     private void createMonster()
 	{
         LevelData ld = LevelData.instance;
@@ -336,9 +341,7 @@ public class GameManager : MonoBehaviour
         for (i = 0; i < total; i++)
 		{
             // 스테이지 총 몬스터 소환 되는 수
-            if (!maps[i])
-                continue;
-            if (i == player.mapNumber)
+            if (maps[i] == null || i == player.mapNumber)
                 continue;
 
             sum += maps[i].transform.Find("MonsterSpawn").childCount;
@@ -350,7 +353,7 @@ public class GameManager : MonoBehaviour
         GameObject monsterParent = GameObject.Find("Monsters");
         Monster m;
         Transform t;
-        int num;
+        int num, count = 0;
         string str;
         for (i = 0; i < total; i++) 
 		{
@@ -376,6 +379,10 @@ public class GameManager : MonoBehaviour
 
                 m = g.GetComponent<Monster>();
                 m.initialize(i);
+                monsters[count++] = m;
+
+                if (count > sum)
+                    print("monster create count over total-Monster-Number");
 			}
         }
         

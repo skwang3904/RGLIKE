@@ -91,15 +91,22 @@ public class Player : LivingEntity, IDamageable, IInitialize
 			    }
         }
 
-        // test
-        if(Input.GetKeyDown(KeyCode.Escape))
-		{
-            if (state != EntityState.dead)
-			{
-                onDamage(10000);
-			}
-		}
+        {
+            // test
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (state != EntityState.dead)
+                {
+                    onDamage(10000);
+                }
+            }
 
+            if(Input.GetKeyDown(KeyCode.Tab))
+			{
+                UIManager.instance.miniMapSizing();
+
+            }
+        }
     }
 
 	private void FixedUpdate()
