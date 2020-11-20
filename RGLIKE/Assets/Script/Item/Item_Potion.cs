@@ -17,43 +17,7 @@ public class Item_Potion : Item
 			state == NonEntityState.dead)
 			return;
 
-		switch (state)
-		{
-			case NonEntityState.NonAppear: break;
-			case NonEntityState.Appear:
-				{
-					if(isAppear)
-						setItemState(NonEntityState.Idle);
-					break;
-				}
-			case NonEntityState.Idle:
-				{
-					// if use 
-					// setItemState(NonEntityState.Active);
-					if (touchBox.IsTouching(player.hitBox))
-						setItemState(NonEntityState.Active);
-					break;
-				}
-			case NonEntityState.Active:
-				{
-					if(isActive)
-					{
-						onUse();
-						setItemState(NonEntityState.Disappear);
-					}
-					break;
-				}
-			case NonEntityState.Disappear:
-				{
-					// end
-					if(isDisappear)
-					{
-						setItemState(NonEntityState.dead);
-						gameObject.SetActive(false);
-					}
-					break;
-				}
-		}
+		commonFunction();
 	}
 
 	public override void initialize(int mapNum, Vector2 position)
@@ -61,6 +25,8 @@ public class Item_Potion : Item
 		base.initialize(mapNum, position);
 
 		setItemState(NonEntityState.Appear);
+
+		strName = IMacro.ItemName[(int)IMacro.Item_Name.Potion];
 		value = Random.Range(1, 3) * 10;
 	}
 

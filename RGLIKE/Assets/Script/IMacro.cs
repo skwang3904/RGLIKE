@@ -65,6 +65,7 @@ public static class IMacro
 		Potion,
 
 		Max,
+		None,
 	}
 
 	public static string[] ItemName =
@@ -73,6 +74,13 @@ public static class IMacro
 		"Potion",
 
 	};
+
+	//---------------------------------------------------------------
+	// variable
+
+	public static Color color_White = Color.white;
+	public static Color color_NoneAlpha = new Color(1,1,1,0);
+	public static Color color_Black = Color.black;
 
 }
 
@@ -115,3 +123,4 @@ public enum MapState
 	boss,
 	shop,
 }
+

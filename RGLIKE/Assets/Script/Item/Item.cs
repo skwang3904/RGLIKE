@@ -14,9 +14,7 @@ public class Item : NonLivingEntity, IItem
 		items = new Item[(int)IMacro.Item_Name.Max, Max_itemNum];
 	}
 
-	public Vector2 appearPosition;
-	public float appearHeight;
-
+	public string strName;
 	public Action useMethod;
 
 	protected override void Awake()
@@ -39,10 +37,58 @@ public class Item : NonLivingEntity, IItem
 		isAppear = false;
 		isActive = false;
 		isDisappear = false;
+
+		//
+		strName = "";
 	}
 
 	//-------------------------------------------------------
+	// item update function
 
+	public void commonFunction()
+	{
+		switch (state)
+		{
+			case NonEntityState.NonAppear: break;
+			case NonEntityState.Appear:
+				{
+					if (isAppear)
+						setItemState(NonEntityState.Idle);
+					break;
+				}
+			case NonEntityState.Idle:
+				{
+					// if use 
+					// setItemState(NonEntityState.Active);
+					if (touchBox.IsTouching(player.hitBox))
+						setItemState(NonEntityState.Active);
+					break;
+				}
+			case NonEntityState.Active:
+				{
+					if (isActive)
+					{
+						//onUse();
+						Inventory.instance.addItem(this);
+						setItemState(NonEntityState.Disappear);
+					}
+					break;
+				}
+			case NonEntityState.Disappear:
+				{
+					// end
+					if (isDisappear)
+					{
+						setItemState(NonEntityState.dead);
+						gameObject.SetActive(false);
+					}
+					break;
+				}
+		}
+	}
+
+	//-------------------------------------------------------
+	// drop function
 	public static void dropItem(int mapNum, Vector2 position, 
 		IMacro.Item_Name index, int num)
 	{

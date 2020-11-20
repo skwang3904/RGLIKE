@@ -20,21 +20,7 @@ public class UIManager : MonoBehaviour
 	private Texture2D[] texMinimap;
 	private Texture2D[] colorMinimap;
 
-	private struct QuickSlotData
-	{
-		public Sprite sp;
-		public int num;
-
-		public void changeQuickSlot(QuickSlotData qsd)
-		{
-			QuickSlotData tmp = this;
-			this = qsd;
-			qsd = tmp;
-		}
-	}
-	private RectTransform rect_QuickSlot;
-	private const int quickSlotNum = 4;
-	private Item[] quickItem;
+	
 	private Button btn_Menu;
 
 	private void Awake()
@@ -90,10 +76,9 @@ public class UIManager : MonoBehaviour
 			colorMinimap[i] = createTextureFromColor(color[i]);
 		}
 
+		GameObject inven = Instantiate(Resources.Load("Prefabs/UI/Inventory")) as GameObject;
+		inven.transform.SetParent(canvasUI.transform);
 		//
-		rect_QuickSlot = canvasUI.transform.Find("QuickSlotBase").GetComponent<RectTransform>();
-		quickItem = new Item[quickSlotNum];
-
 		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
 	}
 
@@ -119,6 +104,8 @@ public class UIManager : MonoBehaviour
 	{
 		drawMinimap();
 	}
+
+	//---------------------------------------------------
 
 	public void miniMapSizing()
 	{
