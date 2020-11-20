@@ -87,8 +87,10 @@ public class Item : NonLivingEntity, IItem
 		}
 	}
 
+
 	//-------------------------------------------------------
 	// drop function
+
 	public static void dropItem(int mapNum, Vector2 position, 
 		IMacro.Item_Name index, int num)
 	{

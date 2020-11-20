@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
 	private Texture2D[] texMinimap;
 	private Texture2D[] colorMinimap;
 
-	
+
 	private Button btn_Menu;
 
 	private void Awake()
@@ -76,9 +76,11 @@ public class UIManager : MonoBehaviour
 			colorMinimap[i] = createTextureFromColor(color[i]);
 		}
 
+
 		GameObject inven = Instantiate(Resources.Load("Prefabs/UI/Inventory")) as GameObject;
 		inven.transform.SetParent(canvasUI.transform);
-		//
+
+
 		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
 	}
 
@@ -104,8 +106,6 @@ public class UIManager : MonoBehaviour
 	{
 		drawMinimap();
 	}
-
-	//---------------------------------------------------
 
 	public void miniMapSizing()
 	{
