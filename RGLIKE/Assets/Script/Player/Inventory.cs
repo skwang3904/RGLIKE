@@ -240,9 +240,9 @@ public class Inventory : MonoBehaviour
 
 	private void changInvenItem(int curr, int change)
 	{
-		SlotInfo tmp = slotInfo[curr];
-		slotInfo[curr] = slotInfo[change];
-		slotInfo[change] = tmp;
+		Vector2 tmp = slotInfo[curr].rt.anchoredPosition;
+		slotInfo[curr].rt.anchoredPosition = slotInfo[change].rt.anchoredPosition;
+		slotInfo[change].rt.anchoredPosition = tmp;
 
 		mci.init();
 	}
