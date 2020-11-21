@@ -8,7 +8,9 @@ public class UIManager : MonoBehaviour
 	private GameManager g;
 	private Player player;
 
-	private Canvas canvasUI;
+	public Canvas canvasUI { get; private set; }
+	public CanvasScaler canvasScaler { get; private set; }
+
 	private Text text_PlayTime;
 	private Text text_PlayerHp;
 	private Text text_Gold;
@@ -29,21 +31,33 @@ public class UIManager : MonoBehaviour
 			instance = this;
 		else if (instance != null && instance != this)
 			Destroy(gameObject);
-
 		DontDestroyOnLoad(gameObject);
 
 		//
+		// PlayTime, PlayerHp, Gold, Menu, Minimap
+		//createUItransformData(5);
 
 		canvasUI = GameObject.Find("UI Manager").
 			transform.Find("Canvas_UI").GetComponent<Canvas>();
+		canvasScaler = canvasUI.GetComponent<CanvasScaler>();
+
 		text_PlayTime = canvasUI.transform.Find("PlayTime").GetComponent<Text>();
+		//initUItransformData(canvasUI.transform.Find("PlayTime").GetComponent<RectTransform>());
+
 		text_PlayerHp = canvasUI.transform.Find("PlayerHp").GetComponent<Text>();
+		//initUItransformData(canvasUI.transform.Find("PlayerHp").GetComponent<RectTransform>());
+
 		text_Gold = canvasUI.transform.Find("Gold").GetComponent<Text>();
+		//initUItransformData(canvasUI.transform.Find("Gold").GetComponent<RectTransform>());
+
+		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
+		//initUItransformData(canvasUI.transform.Find("Menu").GetComponent<RectTransform>());
 
 		//minimap
 		rect_MiniMapBG = canvasUI.transform.Find("MinimapBG").GetComponent<RectTransform>();
 		size_minimap = Mathf.Min(rect_MiniMapBG.sizeDelta.x, rect_MiniMapBG.sizeDelta.y);
 		anchored_minimap = rect_MiniMapBG.anchoredPosition;
+		//initUItransformData(rect_MiniMapBG);
 
 		const int minimapNum = 5;
 		texMinimap = new Texture2D[minimapNum];
@@ -80,9 +94,8 @@ public class UIManager : MonoBehaviour
 		GameObject inven = Instantiate(Resources.Load("Prefabs/UI/Inventory")) as GameObject;
 		inven.transform.SetParent(canvasUI.transform);
 		inven.transform.SetSiblingIndex(canvasUI.transform.childCount - 2);
+		inven.GetComponent<RectTransform>().sizeDelta *= canvasUI.transform.localScale;
 
-
-		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
 	}
 
 	private void Start()
@@ -113,11 +126,10 @@ public class UIManager : MonoBehaviour
 		minimapLargeSize = !minimapLargeSize;
 		if(minimapLargeSize)
 		{
-			float width = Screen.width;
-			float height = Screen.height;
-			float min = Mathf.Min(Screen.width, Screen.height);
+			Vector2 v = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
+				float min = Mathf.Min(v.x, v.y);
 			rect_MiniMapBG.sizeDelta = new Vector2(min, min);
-			rect_MiniMapBG.anchoredPosition = new Vector2(-min, -min / 2);
+			rect_MiniMapBG.anchoredPosition = new Vector2(-Screen.width, -Screen.height);
 			Time.timeScale = 0f;
 		}
 		else
@@ -154,7 +166,6 @@ public class UIManager : MonoBehaviour
 			{
 				rt.Set(x + width * (i % sqrt) - w / 2, y - height - height * (i / sqrt) - h / 2,
 					width + w, height + h);
-
 
 				drawQuad(rt, colorMinimap[0]);
 

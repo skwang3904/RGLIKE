@@ -10,11 +10,16 @@ public class Inventory : MonoBehaviour
 	public bool inventoryOpen { get; private set; }
 
 	private Canvas canvasUI;
+	private CanvasScaler canvasScaler;
 
-	private Vector2 slotBasePosition = new Vector2(150, 200);
-	private GameObject[] invenSlot;
+	private RectTransform invenRect;
+	private Vector2 invenSize;
+
+	//------------------------------------------------------------
+	// inven slot
+
+	private Vector2 slotBasePosition;
 	private RectTransform[] invenSlotRectTransform;
-	private const int slotNum = 10;
 
 	private struct SlotInfo
 	{
@@ -39,7 +44,11 @@ public class Inventory : MonoBehaviour
 		}
 	}
 	private SlotInfo[] slotInfo; // 정리되면 리스트로 만들기
+	private const int slotNum = 10;
 
+
+	//------------------------------------------------------------
+	// mouse click
 	private struct MouseClickItem
 	{
 		public float mouseClickDt, _mouseClickDt;
@@ -61,6 +70,7 @@ public class Inventory : MonoBehaviour
 	}
 	private MouseClickItem mci;
 
+	
 
 	private void Awake()
 	{
@@ -70,38 +80,50 @@ public class Inventory : MonoBehaviour
 			Destroy(gameObject);
 		DontDestroyOnLoad(gameObject);
 
-		canvasUI = GameObject.Find("UI Manager").
-			transform.Find("Canvas_UI").GetComponent<Canvas>();
+		int i;
+		canvasUI = UIManager.instance.canvasUI;
+		canvasScaler = UIManager.instance.canvasScaler;
 
-		//
-		invenSlot = new GameObject[slotNum];
+		invenRect = GetComponent<RectTransform>();
+		invenSize = invenRect.sizeDelta;
+		invenRect.sizeDelta = invenSize * canvasUI.transform.localScale;
+
+		//------------------------------------------------------------
+		// inven slot
+		slotBasePosition = new Vector2(140, 250);
+		Vector2 slotDis = new Vector2(140 + 50, 140 + 50);
+		GameObject[] slots_go = new GameObject[slotNum];
 		invenSlotRectTransform = new RectTransform[slotNum];
 		slotInfo = new SlotInfo[slotNum];
 		Vector2 v = Vector2.zero;
-		for (int i = 0; i < slotNum; i++)
+		for (i = 0; i < slotNum; i++)
 		{
-			v.Set(150 * (i % 5), 150 - 150 * (i / 5));
-			invenSlot[i] = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
+			v.Set(slotDis.x * (i % 5),
+				slotDis.y - slotDis.y * (i / 5));
+			slots_go[i] = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
 				(Vector2)transform.position + slotBasePosition + v,
 				Quaternion.identity) as GameObject;
-			invenSlot[i].transform.SetParent(transform);
-			invenSlotRectTransform[i] = invenSlot[i].GetComponent<RectTransform>();
+			slots_go[i].transform.SetParent(transform);
+			invenSlotRectTransform[i] = slots_go[i].GetComponent<RectTransform>();
 			ref SlotInfo si = ref slotInfo[i];
 			si.index = i;
-			si.rt = invenSlot[i].GetComponent<RectTransform>();
+			si.rt = slots_go[i].GetComponent<RectTransform>();
 
 			si.item = null;
-			si.img = invenSlot[i].transform.Find("Item_Image").GetComponent<Image>();
+			si.img = slots_go[i].transform.Find("Item_Image").GetComponent<Image>();
 			si.img.sprite = null;
 
-			si.btn = invenSlot[i].transform.Find("Item_Image").GetComponent<Button>();
+			si.btn = slots_go[i].transform.Find("Item_Image").GetComponent<Button>();
 			si.btn.onClick.RemoveAllListeners();
 
 			si.num = 0;
-			si.text = invenSlot[i].transform.Find("Item_Num").GetComponent<Text>();
+			si.text = slots_go[i].transform.Find("Item_Num").GetComponent<Text>();
 			si.text.text = si.num.ToString();
 		}
 
+
+		//------------------------------------------------------------
+		// mouse click
 
 		mci = new MouseClickItem();
 		mci.mouseClickDt = 0;
@@ -119,9 +141,10 @@ public class Inventory : MonoBehaviour
 
 	private void Update()
 	{
+		print("screen  : [" + Screen.width + "],  [" + Screen.height + "]");
 #if true //test
-		inventoryOpen = true;
-		if(Input.GetKeyDown(KeyCode.G))
+		//inventoryOpen = true;
+		if (Input.GetKeyDown(KeyCode.G))
 		{
 			addItem(Item.items[0, 0]);
 			addItem(Item.items[1, 0]);
@@ -140,7 +163,8 @@ public class Inventory : MonoBehaviour
 				if (slotInfo[i].rt.rect.Contains(mci.mouseRectPosition))
 				{
 					mci.clickNum = i;
-					print(slotInfo[i].index);
+
+					print("inventory Index : " + slotInfo[i].index);
 					break;
 				}
 			}
@@ -159,7 +183,7 @@ public class Inventory : MonoBehaviour
 						//slotInfo[mci.clickNum].img.sprite = null;
 					}
 					mci.img.rectTransform.anchoredPosition =
-						(mci.mousePosition - new Vector2(Screen.width, Screen.height) / 2)
+						(mci.mousePosition - new Vector2(Screen.width, Screen.height) / 2) //개선
 						/ canvasUI.transform.localScale;
 						
 				}
@@ -195,10 +219,14 @@ public class Inventory : MonoBehaviour
 	}
 
 	//--------------------------------------------------------------------------------
-	
+
 	public void inventoryOpenClose()
 	{
 		inventoryOpen = !inventoryOpen;
+		if (inventoryOpen)
+			transform.localScale = new Vector2(1, 1);
+		else
+			transform.localScale = Vector2.zero;
 	}
 
 	public void addItem(Item item)

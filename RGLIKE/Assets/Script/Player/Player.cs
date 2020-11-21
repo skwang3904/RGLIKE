@@ -106,6 +106,11 @@ public class Player : LivingEntity, IDamageable, IInitialize
                 UIManager.instance.miniMapSizing();
 
             }
+
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                Inventory.instance.inventoryOpenClose();
+            }
         }
     }
 
