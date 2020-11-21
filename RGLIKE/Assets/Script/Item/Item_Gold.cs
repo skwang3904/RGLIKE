@@ -8,6 +8,7 @@ public class Item_Gold : Item
 	{
 		base.Awake();
 
+		strName = IMacro.ItemName[(int)IMacro.Item_Name.Gold];
 		useMethod += plusGold;
 	}
 
@@ -25,7 +26,6 @@ public class Item_Gold : Item
 		base.initialize(mapNum, position);
 
 		setItemState(NonEntityState.Appear);
-		strName = IMacro.ItemName[(int)IMacro.Item_Name.Gold];
 		value = Random.Range(1, 3);
 	}
 

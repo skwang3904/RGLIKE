@@ -15,7 +15,7 @@ public class UIManager : MonoBehaviour
 
 	private RectTransform rect_MiniMapBG;
 	private bool minimapLargeSize;
-	private Vector2 size_minimap;
+	private float size_minimap;
 	private Vector2 anchored_minimap;
 	private Texture2D[] texMinimap;
 	private Texture2D[] colorMinimap;
@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
 
 		//minimap
 		rect_MiniMapBG = canvasUI.transform.Find("MinimapBG").GetComponent<RectTransform>();
-		size_minimap = rect_MiniMapBG.sizeDelta;
+		size_minimap = Mathf.Min(rect_MiniMapBG.sizeDelta.x, rect_MiniMapBG.sizeDelta.y);
 		anchored_minimap = rect_MiniMapBG.anchoredPosition;
 
 		const int minimapNum = 5;
@@ -79,6 +79,7 @@ public class UIManager : MonoBehaviour
 
 		GameObject inven = Instantiate(Resources.Load("Prefabs/UI/Inventory")) as GameObject;
 		inven.transform.SetParent(canvasUI.transform);
+		inven.transform.SetSiblingIndex(canvasUI.transform.childCount - 2);
 
 
 		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
@@ -114,13 +115,14 @@ public class UIManager : MonoBehaviour
 		{
 			float width = Screen.width;
 			float height = Screen.height;
-			rect_MiniMapBG.sizeDelta = new Vector2(width, height);
-			rect_MiniMapBG.anchoredPosition = new Vector2(-width / 2, -height / 2);
+			float min = Mathf.Min(Screen.width, Screen.height);
+			rect_MiniMapBG.sizeDelta = new Vector2(min, min);
+			rect_MiniMapBG.anchoredPosition = new Vector2(-min, -min / 2);
 			Time.timeScale = 0f;
 		}
 		else
 		{
-			rect_MiniMapBG.sizeDelta = size_minimap;
+			rect_MiniMapBG.sizeDelta = new Vector2(size_minimap, size_minimap);
 			rect_MiniMapBG.anchoredPosition = anchored_minimap;
 			Time.timeScale = 1f;
 		}
