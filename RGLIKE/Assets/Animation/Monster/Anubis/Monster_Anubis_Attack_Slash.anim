@@ -21,33 +21,33 @@ AnimationClip:
   - curve:
     - time: 0
       value: {fileID: 21300000, guid: 692ff137c76222a4b80df217eae9c873, type: 3}
-    - time: 0.05
-      value: {fileID: 21300000, guid: c2d84c2d9ce395847be3049aa0cf976c, type: 3}
     - time: 0.1
       value: {fileID: 21300000, guid: c2d84c2d9ce395847be3049aa0cf976c, type: 3}
-    - time: 0.15
-      value: {fileID: 21300000, guid: 44e61cf912bdd53418ca68fd0fd67f84, type: 3}
     - time: 0.2
-      value: {fileID: 21300000, guid: 5d6fe31e6d43a9f4f8ba0ca8eb9f0ab3, type: 3}
-    - time: 0.25
-      value: {fileID: 21300000, guid: 782d7a26eb88eb2429ac06951ad21057, type: 3}
+      value: {fileID: 21300000, guid: c2d84c2d9ce395847be3049aa0cf976c, type: 3}
     - time: 0.3
-      value: {fileID: 21300000, guid: b130e0a829b9ae34cac8a6755d29f41e, type: 3}
-    - time: 0.35
-      value: {fileID: 21300000, guid: 22f7e0f4161f6b842bfcd1d8460a8ca8, type: 3}
+      value: {fileID: 21300000, guid: 44e61cf912bdd53418ca68fd0fd67f84, type: 3}
     - time: 0.4
-      value: {fileID: 21300000, guid: 34175c9ea0418bf49a16a71c6d5006b4, type: 3}
-    - time: 0.45
-      value: {fileID: 21300000, guid: 48f44e869d780af4cb90482680d3f047, type: 3}
+      value: {fileID: 21300000, guid: 5d6fe31e6d43a9f4f8ba0ca8eb9f0ab3, type: 3}
     - time: 0.5
+      value: {fileID: 21300000, guid: 782d7a26eb88eb2429ac06951ad21057, type: 3}
+    - time: 0.6
+      value: {fileID: 21300000, guid: b130e0a829b9ae34cac8a6755d29f41e, type: 3}
+    - time: 0.7
+      value: {fileID: 21300000, guid: 22f7e0f4161f6b842bfcd1d8460a8ca8, type: 3}
+    - time: 0.8
+      value: {fileID: 21300000, guid: 34175c9ea0418bf49a16a71c6d5006b4, type: 3}
+    - time: 0.9
+      value: {fileID: 21300000, guid: 48f44e869d780af4cb90482680d3f047, type: 3}
+    - time: 1
       value: {fileID: 21300000, guid: 66ec045a0f4c5fb4a8c9604442dd6d55, type: 3}
-    - time: 0.55
+    - time: 1.1
       value: {fileID: 21300000, guid: 3156af409148b4d44821e3f317042271, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
     script: {fileID: 0}
-  m_SampleRate: 20
+  m_SampleRate: 10
   m_WrapMode: 0
   m_Bounds:
     m_Center: {x: 0, y: 0, z: 0}
@@ -79,7 +79,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.6
+    m_StopTime: 1.2
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -99,14 +99,14 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.05
+  - time: 0.1
     functionName: aniAttacking
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.6
+  - time: 1.2
     functionName: aniAttackToIdle
     data: 
     objectReferenceParameter: {fileID: 0}

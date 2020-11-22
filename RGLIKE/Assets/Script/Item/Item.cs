@@ -20,6 +20,8 @@ public class Item : NonLivingEntity, IItem
 	protected override void Awake()
 	{
 		base.Awake();
+
+		initialize(0, Vector2.zero);
 	}
 
 	public void onUse()
@@ -28,10 +30,10 @@ public class Item : NonLivingEntity, IItem
 	}
 
 	public virtual void initialize(int mapNum, Vector2 position)
-	{
-		transform.position = position;
+	{ 
+		transform.position = new Vector2(-100,-100);
 		state = NonEntityState.NonAppear;
-		mapNumber = mapNum;
+		//mapNumber = mapNum;
 		value = 0;
 
 		isAppear = false;
@@ -87,6 +89,12 @@ public class Item : NonLivingEntity, IItem
 		}
 	}
 
+	public void appearItem(int mapNum, Vector2 position)
+	{
+		transform.position = position;
+		mapNumber = mapNum;
+		setItemState(NonEntityState.Appear);
+	}
 
 	//-------------------------------------------------------
 	// drop function
@@ -102,7 +110,7 @@ public class Item : NonLivingEntity, IItem
 			Item it = items[idx, i];
 			if (it.state == NonEntityState.NonAppear)
 			{
-				it.initialize(mapNum, position);
+				it.appearItem(mapNum, position);
 				n++;
 			}
 

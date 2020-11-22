@@ -6,6 +6,7 @@ using Cinemachine;
 
 public class Player : LivingEntity, IDamageable, IInitialize
 {
+    private ParticleSystem particle;
     // controller
     private PlayerController pctrl;
     private float aniX, aniY;
@@ -20,6 +21,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
     protected override void Awake()
 	{
+        particle = GetComponent<ParticleSystem>();
         base.Awake();
 
         pctrl = GetComponent<PlayerController>();
@@ -148,6 +150,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
         if (state == EntityState.dead)
             return;
 
+        particle.Play();
         hp -= damage;
         if (hp < 0)
 		{

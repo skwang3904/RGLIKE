@@ -10,7 +10,7 @@ public class LivingEntity : MonoBehaviour
 	public SpriteRenderer spriteRenderer { get; protected set; }
 	public BoxCollider2D hitBox { get; protected set; }
 	public BoxCollider2D moveBox { get; protected set; }
-	//private ParticleSystem particle;
+	public ParticleSystem particle { get; protected set; }
 
 	public EntityState state;
 	public int mapNumber;
@@ -33,5 +33,6 @@ public class LivingEntity : MonoBehaviour
 		hitBox = box[0];
 		moveBox = box[1];
 
+		particle = GetComponent<ParticleSystem>();
 	}
 }

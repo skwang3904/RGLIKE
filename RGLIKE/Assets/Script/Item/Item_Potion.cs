@@ -8,8 +8,6 @@ public class Item_Potion : Item
 	{
 		base.Awake();
 
-		strName = IMacro.ItemName[(int)IMacro.Item_Name.Potion];
-		useMethod += healthPlayer;
 	}
 
 	private void Update()
@@ -25,9 +23,10 @@ public class Item_Potion : Item
 	{
 		base.initialize(mapNum, position);
 
-		setItemState(NonEntityState.Appear);
-
+		//setItemState(NonEntityState.Appear);
+		strName = IMacro.ItemName[(int)IMacro.Item_Name.Potion];
 		value = Random.Range(1, 3) * 10;
+		useMethod += healthPlayer;
 	}
 
 	private void healthPlayer()

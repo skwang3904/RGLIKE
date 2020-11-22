@@ -7,13 +7,10 @@ using UnityEngine.UI;
 public class Inventory : MonoBehaviour
 {
 	public static Inventory instance;
-	public bool inventoryOpen { get; private set; }
 
 	private Canvas canvasUI;
 	private CanvasScaler canvasScaler;
-
 	private RectTransform invenRect;
-	private Vector2 invenSize;
 
 	//------------------------------------------------------------
 	// inven slot
@@ -70,7 +67,9 @@ public class Inventory : MonoBehaviour
 	}
 	private MouseClickItem mci;
 
-	
+	public bool inventoryOpen { get; private set; }
+	private float invenOpenDt, _invenOpenDt;
+
 
 	private void Awake()
 	{
@@ -81,12 +80,13 @@ public class Inventory : MonoBehaviour
 		DontDestroyOnLoad(gameObject);
 
 		int i;
+
 		canvasUI = UIManager.instance.canvasUI;
 		canvasScaler = UIManager.instance.canvasScaler;
 
 		invenRect = GetComponent<RectTransform>();
-		invenSize = invenRect.sizeDelta;
-		invenRect.sizeDelta = invenSize * canvasUI.transform.localScale;
+		Vector2 invenPos = Camera.main.ViewportToScreenPoint(new Vector2(0.4f,0.3f));
+		invenRect.anchoredPosition = invenPos;
 
 		//------------------------------------------------------------
 		// inven slot
@@ -137,6 +137,11 @@ public class Inventory : MonoBehaviour
 		g.name = "Invectory Click Item";
 		mci.img = g.AddComponent<Image>();
 		mci.img.color = IMacro.color_NoneAlpha;
+
+		inventoryOpen = true;
+		invenOpenDt = 0;
+		_invenOpenDt = 0.2f;
+		inventoryOpenClose();
 	}
 
 	private void Update()
@@ -223,10 +228,37 @@ public class Inventory : MonoBehaviour
 	public void inventoryOpenClose()
 	{
 		inventoryOpen = !inventoryOpen;
-		if (inventoryOpen)
-			transform.localScale = new Vector2(1, 1);
+		if (invenOpenDt == _invenOpenDt)
+			invenOpenDt = 0;
 		else
-			transform.localScale = Vector2.zero;
+			invenOpenDt = _invenOpenDt - invenOpenDt;
+		StartCoroutine("invenOpen");
+	}
+
+	private IEnumerator invenOpen()
+	{
+		while(true)
+		{
+			invenOpenDt += Time.deltaTime;
+			if (invenOpenDt > _invenOpenDt)
+				invenOpenDt = _invenOpenDt;
+
+			if (inventoryOpen)
+				transform.localScale = Vector2.Lerp(
+				Vector2.zero,
+				new Vector2(1, 1),
+				invenOpenDt / _invenOpenDt);
+			else
+				transform.localScale = Vector2.Lerp(
+					new Vector2(1, 1), 
+					Vector2.zero,
+					invenOpenDt / _invenOpenDt);
+
+			if (invenOpenDt == _invenOpenDt)
+				break;
+			
+			yield return null;
+		}
 	}
 
 	public void addItem(Item item)

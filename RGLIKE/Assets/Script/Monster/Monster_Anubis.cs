@@ -125,7 +125,7 @@ public class Monster_Anubis : Monster
 	public override void onDamage(float damage)
 	{
 		base.onDamage(damage);
-
+		particle.Play();
 		if(state == EntityState.dead)
 		{
 			initState();
