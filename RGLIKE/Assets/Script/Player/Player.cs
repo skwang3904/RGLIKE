@@ -99,7 +99,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
             {
                 if (state != EntityState.dead)
                 {
-                    onDamage(10000);
+                    //onDamage(10000);
                 }
             }
 

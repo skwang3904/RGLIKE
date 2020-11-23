@@ -146,8 +146,10 @@ public class UIManager : MonoBehaviour
 	{
 		isPause = !isPause;
 		pauseBG.SetActive(isPause);
-		if(isPause)
+		if (isPause)
 			StartCoroutine("pauseGameFade");
+		else
+			Time.timeScale = 1;
 	}
 
 	private void exitGame()
@@ -162,15 +164,17 @@ public class UIManager : MonoBehaviour
 	private IEnumerator pauseGameFade()
 	{
 		pauseFadeDt = 0;
+		float dt = Time.deltaTime; 
+		Time.timeScale = 0;
 		while (true)
 		{
-			pauseFadeDt += Time.deltaTime;
+			pauseFadeDt += dt;
 			if(pauseFadeDt > _pauseFadeDt)
 			{
-				pauseBG.GetComponent<Image>().color = Color.black;
+				pauseBG.GetComponent<Image>().color = Color.black * 0.8f;
 				break;
 			}
-			Color c = new Color(0, 0, 0, pauseFadeDt / _pauseFadeDt);
+			Color c = new Color(0, 0, 0, pauseFadeDt / _pauseFadeDt * 0.8f);
 			pauseBG.GetComponent<Image>().color = c;
 
 			yield return null;
@@ -182,10 +186,11 @@ public class UIManager : MonoBehaviour
 		minimapLargeSize = !minimapLargeSize;
 		if(minimapLargeSize)
 		{
-			Vector2 v = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
-				float min = Mathf.Min(v.x, v.y);
+			Vector2 v = canvasScaler.referenceResolution / 3;
+
+			float min = Mathf.Min(Screen.width, Screen.height);
 			rect_MiniMapBG.sizeDelta = new Vector2(min, min);
-			rect_MiniMapBG.anchoredPosition = new Vector2(-Screen.width, -Screen.height);
+			rect_MiniMapBG.anchoredPosition = -v;
 			Time.timeScale = 0f;
 		}
 		else
