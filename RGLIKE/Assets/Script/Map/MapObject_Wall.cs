@@ -33,7 +33,7 @@ public class MapObject_Wall : MapObject
 		base.initialize(mapNum, position);
 
 		state = NonEntityState.Idle;
-		value = 1;
+		value = 3;
 	}
 	//------------------------------------------
 

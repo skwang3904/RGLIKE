@@ -14,15 +14,14 @@ public class MapObject_Lever : MapObject
 
 	private void FixedUpdate()
 	{
-		if (animator.GetBool("OnOff") != OnOff)
-			return;
-
 		if(touchBox.IsTouching(player.hitBox))
 		{
-			print("touch");
 			if (Input.GetKeyDown(KeyCode.J))
 			{
-				animator.SetBool("OnOff", !OnOff);
+				OnOff = !OnOff;
+				animator.SetBool("OnOff", OnOff);
+				if(OnOff)
+					active?.Invoke();
 			}
 		}
 	}
@@ -31,14 +30,8 @@ public class MapObject_Lever : MapObject
 
 	private void whenLeverOn()
 	{
-		Item.dropItem(mapNumber, (Vector2)transform.position + Random.insideUnitCircle * 2 ,
+		Item.dropItem(mapNumber,
+			(Vector2)transform.position + Random.insideUnitCircle * 3,
 			IMacro.Item_Name.Gold, 1);
-	}
-
-	private void aniLeverCtrl()
-	{
-		OnOff = !OnOff;
-		if (OnOff)
-			active?.Invoke();
 	}
 }

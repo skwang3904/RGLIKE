@@ -91,6 +91,7 @@ public class Item : NonLivingEntity, IItem
 
 	public void appearItem(int mapNum, Vector2 position)
 	{
+		//transform.localPosition = Vector3.zero;
 		transform.position = position;
 		mapNumber = mapNum;
 		setItemState(NonEntityState.Appear);

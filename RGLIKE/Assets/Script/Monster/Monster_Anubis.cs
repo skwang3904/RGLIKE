@@ -18,8 +18,10 @@ public class Monster_Anubis : Monster
 	{
 		if (mapNumber != player.mapNumber)
 			return;
-		if (player.state == EntityState.dead)
+		if (state == EntityState.dead ||
+			player.state == EntityState.dead)
 			return;
+
 
 		distanceToPlayer = Vector2.Distance(player.transform.position, transform.position);
 		switch (state)
@@ -79,8 +81,10 @@ public class Monster_Anubis : Monster
 	{
 		if (mapNumber != player.mapNumber)
 			return;
-		if (player.state == EntityState.dead)
+		if (state == EntityState.dead ||
+			player.state == EntityState.dead)
 			return;
+
 
 		switch (state)
 		{

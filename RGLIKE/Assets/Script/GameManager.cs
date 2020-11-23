@@ -352,7 +352,23 @@ public class GameManager : MonoBehaviour
     // createMapObject
     private void createMapObject()
 	{
+#if true // test
+        GameObject g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_Barrel")) as GameObject;
+        Vector3 v = player.transform.position + new Vector3(-2, 2, 0);
+        g.GetComponent<MapObject>().initialize(player.mapNumber, v);
+        g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_Lever")) as GameObject;
+        v = player.transform.position + new Vector3(2, 2, 0);
+        g.GetComponent<MapObject>().initialize(player.mapNumber, v);
 
+        g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_SpikeTrap")) as GameObject;
+        v = player.transform.position + new Vector3(-2, -2, 0);
+        g.GetComponent<MapObject>().initialize(player.mapNumber, v);
+
+        g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_Wall")) as GameObject;
+        v = player.transform.position + new Vector3(2, -2, 0);
+        g.GetComponent<MapObject>().initialize(player.mapNumber, v);
+
+#endif
     }
 
     //---------------------------------------------------------------------------

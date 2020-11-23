@@ -112,7 +112,7 @@ public class UIManager : MonoBehaviour
 		isPause = false;
 		pauseFadeDt = 0;
 		_pauseFadeDt = 0.2f;
-}
+	}
 
 	private void Start()
 	{

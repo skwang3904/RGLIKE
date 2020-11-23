@@ -123,8 +123,13 @@ public class Inventory : MonoBehaviour
 		mci.clickImg.rectTransform.anchorMax = vZero;
 
 		transform.SetAsLastSibling();
-		g.transform.SetAsLastSibling();
 		quick_go.transform.SetAsLastSibling();
+		g.transform.SetAsLastSibling();
+	}
+
+	private void Start()
+	{
+
 	}
 
 	private void Update()

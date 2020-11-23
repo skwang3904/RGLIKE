@@ -24,7 +24,8 @@ public class Monster_Destoyer : Monster
 	{
 		if (mapNumber != player.mapNumber)
 			return;
-		if (player.state == EntityState.dead)
+		if (state == EntityState.dead ||
+			player.state == EntityState.dead)
 			return;
 
 		
@@ -85,7 +86,8 @@ public class Monster_Destoyer : Monster
 	{
 		if (mapNumber != player.mapNumber)
 			return;
-		if (player.state == EntityState.dead)
+		if (state == EntityState.dead ||
+			player.state == EntityState.dead)
 			return;
 
 		switch (state)
@@ -176,7 +178,7 @@ public class Monster_Destoyer : Monster
 		state = EntityState.idle;
 		mapNumber = mapNum;
 		hp = _hp = 100;
-		dmg = _dmg = 1;
+		dmg = _dmg = 15;
 		attackDt = _attackDt = 1f;
 		moveSpeed = 3f;
 
