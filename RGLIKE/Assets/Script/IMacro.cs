@@ -124,3 +124,8 @@ public enum MapState
 	shop,
 }
 
+public enum InventorySlotType
+{
+	Nomal = 0,
+	Quick,
+}

@@ -25,7 +25,7 @@ public class Item_Potion : Item
 
 		//setItemState(NonEntityState.Appear);
 		strName = IMacro.ItemName[(int)IMacro.Item_Name.Potion];
-		value = Random.Range(1, 3) * 10;
+		value = 10;
 		useMethod += healthPlayer;
 	}
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Cinemachine;
 
 public class GameManager : MonoBehaviour
@@ -9,12 +10,13 @@ public class GameManager : MonoBehaviour
     public static GameManager instance { get; private set; }
 
     // Score
-    public int totalScore = 0;
-    public int currStageScore = 0;
-    public float totalPlayTime = 0;
-    public float currStageTime = 0;
+    public int totalScore;
+    public int currStageScore;
+    public float totalPlayTime;
+    public float currStageTime;
     public int gold;
-
+    public bool isGameOver;
+    public float gameOverDt, _gameOverDt;
     // Map
     public Map[] maps { get; private set; }
 
@@ -47,6 +49,8 @@ public class GameManager : MonoBehaviour
 			Destroy(gameObject);
 		DontDestroyOnLoad(gameObject);
 
+        _gameOverDt = 1.0f;
+
         createItems(); // items[] 풀메모리
 
         createMap(); // maps[]
@@ -58,10 +62,13 @@ public class GameManager : MonoBehaviour
 
     private void Update()
 	{
+        if (player.state == EntityState.dead &&
+            isGameOver == false)
+            StartCoroutine("gameOverFadeOut");
+            
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
 
-        //print("Time : [" + Mathf.FloorToInt(totalPlayTime) + "] gold : [" + gold +"]");
         passMapAnimation();
     }
 
@@ -70,6 +77,24 @@ public class GameManager : MonoBehaviour
         currStageScore += hp;
         currStageScore += 500 - (int)currStageTime;
         totalScore += currStageScore;
+    }
+
+    private IEnumerator gameOverFadeOut()
+    {
+        isGameOver = true;
+
+        while (true)
+        {
+            gameOverDt += Time.deltaTime;
+            if (gameOverDt > _gameOverDt)
+			{
+                gameOverDt = _gameOverDt;
+                //SceneManager.LoadScene("MainGame"); // 수정
+                break;
+			}
+
+            yield return null;
+        }
     }
 
     //---------------------------------------------------------------------------

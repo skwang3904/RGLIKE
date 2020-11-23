@@ -25,7 +25,7 @@ public class Item_Gold : Item
 
 		//setItemState(NonEntityState.Appear);
 		strName = IMacro.ItemName[(int)IMacro.Item_Name.Gold];
-		value = Random.Range(1, 3);
+		value = 1;
 		useMethod += plusGold;
 	}
 

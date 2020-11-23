@@ -8,67 +8,40 @@ public class Inventory : MonoBehaviour
 {
 	public static Inventory instance;
 
-	private Canvas canvasUI;
-	private CanvasScaler canvasScaler;
-	private RectTransform invenRect;
+	private RectTransform rectf;
+	private Image img;
+	private Text text;
 
 	//------------------------------------------------------------
 	// inven slot
 
-	private Vector2 slotBasePosition;
-	private RectTransform[] invenSlotRectTransform;
-
-	private struct SlotInfo
-	{
-		public int index;
-		public RectTransform rt;
-		public Item item;
-		public Image img;
-		public Button btn;
-		public int num;
-		public Text text;
-
-		public void changeSlotInfo(ref SlotInfo si)
-		{
-			//자리만 바꿈
-			int tmp = index;
-			index = si.index;
-			si.index = tmp;
-
-			Vector2 vtmp = rt.anchoredPosition;
-			rt.anchoredPosition = si.rt.anchoredPosition;
-			si.rt.anchoredPosition = vtmp;
-		}
-	}
-	private SlotInfo[] slotInfo; // 정리되면 리스트로 만들기
+	private LinkedList<Inventory_Slot> list_invenSlot;
 	private const int slotNum = 10;
-
+	private LinkedList<Inventory_Slot> list_quickSlot;
+	private const int quickSlotNum = 4;
+	public bool inventoryOpen { get; private set; }
+	private float invenOpenDt, _invenOpenDt;
 
 	//------------------------------------------------------------
 	// mouse click
-	private struct MouseClickItem
+	private struct InvenClickItem
 	{
-		public float mouseClickDt, _mouseClickDt;
-		public Vector2 mouseRectPosition;
-		public Vector2 mousePosition;
-		public int clickNum;
-		public Image img;
+		public Inventory_Slot clickSlot;
+		public float clickDt;
+		public const float _clickDt = 0.5f;
+		public Image clickImg;
 
 		public void init()
 		{
-			mouseClickDt = 0;
-			//_mouseClickDt;
-			mouseRectPosition.Set(0, 0);
-			mousePosition.Set(0, 0);
-			clickNum = -1;
-			img.sprite = null;
-			img.color = IMacro.color_NoneAlpha;
+/*			if(clickSlot != null)
+				clickSlot.itemImg.color = IMacro.color_NoneAlpha;*/
+			clickSlot = null;
+			clickDt = 0;
+			clickImg.sprite = null;
+			clickImg.color = IMacro.color_NoneAlpha;
 		}
 	}
-	private MouseClickItem mci;
-
-	public bool inventoryOpen { get; private set; }
-	private float invenOpenDt, _invenOpenDt;
+	private InvenClickItem mci;
 
 
 	private void Awake()
@@ -80,73 +53,82 @@ public class Inventory : MonoBehaviour
 		DontDestroyOnLoad(gameObject);
 
 		int i;
+		rectf = GetComponent<RectTransform>();
+		img = GetComponent<Image>();
+		text = transform.GetComponent<Text>();
 
-		canvasUI = UIManager.instance.canvasUI;
-		canvasScaler = UIManager.instance.canvasScaler;
-
-		invenRect = GetComponent<RectTransform>();
 		Vector2 invenPos = Camera.main.ViewportToScreenPoint(new Vector2(0.4f,0.3f));
-		invenRect.anchoredPosition = invenPos;
+		GetComponent<RectTransform>().anchoredPosition = invenPos;
 
 		//------------------------------------------------------------
 		// inven slot
-		slotBasePosition = new Vector2(140, 250);
-		Vector2 slotDis = new Vector2(140 + 50, 140 + 50);
-		GameObject[] slots_go = new GameObject[slotNum];
-		invenSlotRectTransform = new RectTransform[slotNum];
-		slotInfo = new SlotInfo[slotNum];
+		list_invenSlot = new LinkedList<Inventory_Slot>();
+		Inventory_Slot slot;
+
+		Vector2 slotBasePosition = new Vector2(140, 250);
+		Vector2 slotDis = new Vector2(140 + 50, 140 + 50);  // slot size + distance
+
+		GameObject slots_go;
 		Vector2 v = Vector2.zero;
 		for (i = 0; i < slotNum; i++)
 		{
 			v.Set(slotDis.x * (i % 5),
 				slotDis.y - slotDis.y * (i / 5));
-			slots_go[i] = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
+			slots_go = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
 				(Vector2)transform.position + slotBasePosition + v,
 				Quaternion.identity) as GameObject;
-			slots_go[i].transform.SetParent(transform);
-			invenSlotRectTransform[i] = slots_go[i].GetComponent<RectTransform>();
-			ref SlotInfo si = ref slotInfo[i];
-			si.index = i;
-			si.rt = slots_go[i].GetComponent<RectTransform>();
+			slots_go.transform.SetParent(transform);
 
-			si.item = null;
-			si.img = slots_go[i].transform.Find("Item_Image").GetComponent<Image>();
-			si.img.sprite = null;
-
-			si.btn = slots_go[i].transform.Find("Item_Image").GetComponent<Button>();
-			si.btn.onClick.RemoveAllListeners();
-
-			si.num = 0;
-			si.text = slots_go[i].transform.Find("Item_Num").GetComponent<Text>();
-			si.text.text = si.num.ToString();
+			slot = slots_go.GetComponent<Inventory_Slot>();
+			slot.init(InventorySlotType.Nomal, i);
+			list_invenSlot.AddLast(slot);
 		}
-
-
-		//------------------------------------------------------------
-		// mouse click
-
-		mci = new MouseClickItem();
-		mci.mouseClickDt = 0;
-		mci._mouseClickDt = 0.5f;
-		mci.mousePosition = Vector2.zero;
-		mci.mouseRectPosition = Vector2.zero;
-		mci.clickNum = -1;
-		GameObject g = new GameObject();
-		g.transform.position = new Vector3(-100, -100, -200); // 마우스 클릭한 아이템 포지션
-		g.transform.SetParent(canvasUI.transform);
-		g.name = "Invectory Click Item";
-		mci.img = g.AddComponent<Image>();
-		mci.img.color = IMacro.color_NoneAlpha;
 
 		inventoryOpen = true;
 		invenOpenDt = 0;
 		_invenOpenDt = 0.2f;
 		inventoryOpenClose();
+
+		// quick slot
+		list_quickSlot = new LinkedList<Inventory_Slot>();
+		GameObject quick_go = UIManager.instance.canvasUI.transform.Find("QuickSlots").gameObject;
+		slotBasePosition.Set(-(140 * 2 + 50 * 1.5f), 0);
+		for (i = 0; i < quickSlotNum; i++) 
+		{
+			v.Set(slotDis.x * (i % 4), 0);
+			slots_go = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
+				(Vector2)quick_go.transform.position + slotBasePosition + v,
+				Quaternion.identity) as GameObject;
+			slots_go.transform.SetParent(quick_go.transform);
+
+			slot = slots_go.GetComponent<Inventory_Slot>();
+			slot.init(InventorySlotType.Quick,i);
+			list_quickSlot.AddLast(slot);
+		}
+
+		//------------------------------------------------------------
+		// mouse click
+
+		mci = new InvenClickItem();
+		mci.clickDt = 0;
+		mci.clickSlot = null;
+		GameObject g = new GameObject();
+		g.transform.position = new Vector3(-100, -100, -200); // 마우스 클릭한 아이템 포지션
+		g.transform.SetParent(UIManager.instance.canvasUI.transform);
+		g.name = "InvectoryClickItem";
+		mci.clickImg = g.AddComponent<Image>();
+		mci.clickImg.color = IMacro.color_NoneAlpha;
+		Vector2 vZero = Vector2.zero;
+		mci.clickImg.rectTransform.anchorMin = vZero;
+		mci.clickImg.rectTransform.anchorMax = vZero;
+
+		transform.SetAsLastSibling();
+		g.transform.SetAsLastSibling();
+		quick_go.transform.SetAsLastSibling();
 	}
 
 	private void Update()
 	{
-		print("screen  : [" + Screen.width + "],  [" + Screen.height + "]");
 #if true //test
 		//inventoryOpen = true;
 		if (Input.GetKeyDown(KeyCode.G))
@@ -159,61 +141,120 @@ public class Inventory : MonoBehaviour
 		if (!inventoryOpen)
 			return;
 
-		mci.mousePosition = Input.mousePosition;
 		if (Input.GetMouseButtonDown(0))
 		{
-			for (int i = 0; i < slotNum; i++)
+			// 인벤슬롯 검사
+			foreach (Inventory_Slot slot in list_invenSlot)
 			{
-				mci.mouseRectPosition = slotInfo[i].rt.InverseTransformPoint(mci.mousePosition);
-				if (slotInfo[i].rt.rect.Contains(mci.mouseRectPosition))
+				if (slot.item == null)
+					continue;
+				Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
+				if (slot.rectf.rect.Contains(contain))
 				{
-					mci.clickNum = i;
-
-					print("inventory Index : " + slotInfo[i].index);
+					mci.clickSlot = slot;
+					break;
+				}
+			}
+	
+			// 퀵슬롯 검사
+			foreach (Inventory_Slot slot in list_quickSlot)
+			{
+				if (slot.item == null)
+					continue;
+				Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
+				if (slot.rectf.rect.Contains(contain))
+				{
+					mci.clickSlot = slot;
 					break;
 				}
 			}
 		}
 		else if (Input.GetMouseButton(0))
 		{
-			if (mci.clickNum != -1)
+			if (mci.clickSlot != null)
 			{
-				mci.mouseClickDt += Time.deltaTime;
-				if(mci.mouseClickDt > mci._mouseClickDt)
+				mci.clickDt += Time.deltaTime;
+				if(mci.clickDt > InvenClickItem._clickDt)
 				{
-					if (mci.img.sprite == null)
+					if (mci.clickImg.sprite == null)
 					{
-						mci.img.sprite = slotInfo[mci.clickNum].img.sprite;
-						mci.img.color = IMacro.color_White;
-						//slotInfo[mci.clickNum].img.sprite = null;
+						mci.clickImg.sprite = mci.clickSlot.itemImg.sprite;
+						mci.clickImg.color = IMacro.color_White;
+						mci.clickSlot.itemImg.color = IMacro.color_White * 0.5f;
 					}
-					mci.img.rectTransform.anchoredPosition =
-						(mci.mousePosition - new Vector2(Screen.width, Screen.height) / 2) //개선
-						/ canvasUI.transform.localScale;
-						
+
+					Vector2 view = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+					Vector2 mv = view 
+						* UIManager.instance.canvasScaler.referenceResolution;
+
+					mci.clickImg.rectTransform.anchoredPosition = mv;
 				}
 			}
 		}
-		else //if(Input.GetMouseButtonUp(0))
+		else if(Input.GetMouseButtonUp(0))
 		{
-			if (mci.clickNum != -1)
+			if (mci.clickSlot != null)
 			{
-				if (mci.mouseClickDt < mci._mouseClickDt)
+				if (mci.clickDt < InvenClickItem._clickDt)
 				{
-					useInvenItem(mci.clickNum);
+					mci.clickSlot.useItem();
 				}
 				else
 				{
-					for (int i = 0; i < slotNum; i++)
+					// 인벤슬롯 검사
+					if (mci.clickSlot.type == InventorySlotType.Nomal)
 					{
-						if (i == mci.clickNum)
-							continue;
-
-						mci.mouseRectPosition = slotInfo[i].rt.InverseTransformPoint(mci.mousePosition);
-						if (slotInfo[i].rt.rect.Contains(mci.mouseRectPosition))
+						foreach (Inventory_Slot slot in list_invenSlot)
 						{
-							changInvenItem(mci.clickNum, i);
+							Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
+							if (slot.rectf.rect.Contains(contain))
+							{
+								slot.changeSlot(mci.clickSlot);
+								break;
+							}
+						}
+					}
+
+					// 퀵슬롯 검사
+					bool check = true;
+					foreach (Inventory_Slot slot in list_quickSlot)
+					{
+						Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
+						if (slot.rectf.rect.Contains(contain))
+						{
+							if (mci.clickSlot.type == InventorySlotType.Nomal)
+							{
+								foreach (Inventory_Slot s in list_quickSlot)
+								{
+									if (slot == s)
+										continue;
+
+									if(s.item == mci.clickSlot.item)
+									{
+										s.removeItemQuickSlot();
+										break;
+									}
+								}
+
+								slot.addItemQuickSlot(mci.clickSlot);
+							}
+							else if (mci.clickSlot.type == InventorySlotType.Quick)
+								slot.changeSlot(mci.clickSlot);
+
+							check = false;
 							break;
+						}
+					}
+
+					if(check)
+					{
+						foreach(Inventory_Slot slot in list_quickSlot)
+						{
+							if(slot == mci.clickSlot)
+							{
+								slot.removeItemQuickSlot();
+								break;
+							}
 						}
 					}
 				}
@@ -261,75 +302,35 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
+	//--------------------------------------------------------------------------------
+
 	public void addItem(Item item)
 	{
 		// 습득시 인벤토리에 추가
-		int i;
-		for (i = 0; i < slotNum; i++) 
+		foreach(Inventory_Slot slot in list_invenSlot)
 		{
-			ref SlotInfo si = ref slotInfo[i];
-			if (si.item == null)
+			if (slot.item == null)
 				continue;
 
-			if(si.item.strName == item.strName)
+			if (slot.item.strName == item.strName)
 			{
-				addItemNum(i);
+				slot.num++;
+				slot.itemNum.text = slot.num.ToString();
 				return;
 			}
 		}
 
-		for (i = 0; i < slotNum; i++)
+		foreach (Inventory_Slot slot in list_invenSlot)
 		{
-			ref SlotInfo si = ref slotInfo[i];
-			if (si.item == null)
+			if (slot.item == null)
 			{
-				si.item = item;
-				si.img.sprite = Resources.Load("Sprite/Item/" + item.strName, typeof(Sprite)) as Sprite;
-				si.img.color = IMacro.color_White;
-				//si.btn.onClick.AddListener(() => useInvenItem(i));
-				addItemNum(i);
+				slot.item = item;
+				slot.itemImg.sprite = Resources.Load("Sprite/Item/" + item.strName, typeof(Sprite)) as Sprite;
+				slot.itemImg.color = IMacro.color_White;
+				slot.num++;
+				slot.itemNum.text = slot.num.ToString();
 				break;
 			}
 		}
-	}
-
-	private void addItemNum(int i)
-	{
-		// 인벤토리에 추가할때 기존에 있는 슬롯에 갯수만 추가
-		ref SlotInfo si = ref slotInfo[i];
-		si.num++;
-		si.text.text = si.num.ToString();
-	}
-
-	private void useInvenItem(int i)
-	{
-		// 클릭으로 아이템 사용 or 단축키 사용
-		ref SlotInfo si = ref slotInfo[i];
-		if (si.item == null)
-			return;
-
-		si.item.onUse();
-		si.num--;
-		si.text.text = si.num.ToString();
-
-		if(si.num <= 0)
-		{
-			si.item = null;
-			si.img.sprite = null;
-			si.img.color = IMacro.color_NoneAlpha;
-			si.btn.onClick.RemoveAllListeners();
-			si.num = 0;
-			si.text.text = si.num.ToString();
-		}
-	}
-
-	private void changInvenItem(int currIndex, int changeIndex)
-	{
-		ref SlotInfo curr = ref slotInfo[currIndex];
-		ref SlotInfo change = ref slotInfo[changeIndex];
-
-		curr.changeSlotInfo(ref change);
-
-		mci.init();
 	}
 }

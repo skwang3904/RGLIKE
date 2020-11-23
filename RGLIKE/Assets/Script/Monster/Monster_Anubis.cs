@@ -51,7 +51,8 @@ public class Monster_Anubis : Monster
 						if (attackRangeToTarget > distanceToPlayer)
 						{
 							state = EntityState.attack;
-							setAttackPattern(Random.Range(0, 2));
+							//setAttackPattern(Random.Range(0, 2));
+							setAttackPattern(1);
 						}
 					}
 

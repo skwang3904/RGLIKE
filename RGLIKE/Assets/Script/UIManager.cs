@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +24,10 @@ public class UIManager : MonoBehaviour
 	private Texture2D[] colorMinimap;
 
 
-	private Button btn_Menu;
+	private Button pauseBtn;
+	private GameObject pauseBG;
+	private bool isPause;
+	private float pauseFadeDt, _pauseFadeDt;
 
 	private void Awake()
 	{
@@ -41,23 +45,22 @@ public class UIManager : MonoBehaviour
 			transform.Find("Canvas_UI").GetComponent<Canvas>();
 		canvasScaler = canvasUI.GetComponent<CanvasScaler>();
 
-		text_PlayTime = canvasUI.transform.Find("PlayTime").GetComponent<Text>();
-		//initUItransformData(canvasUI.transform.Find("PlayTime").GetComponent<RectTransform>());
+		text_PlayTime = canvasUI.transform.Find("PlayerUI").
+			transform.Find("PlayTime").
+			GetComponent<Text>();
 
-		text_PlayerHp = canvasUI.transform.Find("PlayerHp").GetComponent<Text>();
-		//initUItransformData(canvasUI.transform.Find("PlayerHp").GetComponent<RectTransform>());
+		text_PlayerHp = canvasUI.transform.Find("PlayerUI").
+			transform.Find("PlayerHp").
+			GetComponent<Text>();
 
-		text_Gold = canvasUI.transform.Find("Gold").GetComponent<Text>();
-		//initUItransformData(canvasUI.transform.Find("Gold").GetComponent<RectTransform>());
-
-		btn_Menu = canvasUI.transform.Find("Menu").GetComponent<Button>();
-		//initUItransformData(canvasUI.transform.Find("Menu").GetComponent<RectTransform>());
+		text_Gold = canvasUI.transform.Find("PlayerUI").
+			transform.Find("Gold").
+			GetComponent<Text>();
 
 		//minimap
 		rect_MiniMapBG = canvasUI.transform.Find("MinimapBG").GetComponent<RectTransform>();
 		size_minimap = Mathf.Min(rect_MiniMapBG.sizeDelta.x, rect_MiniMapBG.sizeDelta.y);
 		anchored_minimap = rect_MiniMapBG.anchoredPosition;
-		//initUItransformData(rect_MiniMapBG);
 
 		const int minimapNum = 5;
 		texMinimap = new Texture2D[minimapNum];
@@ -96,7 +99,20 @@ public class UIManager : MonoBehaviour
 		inven.transform.SetSiblingIndex(canvasUI.transform.childCount - 2);
 		inven.GetComponent<RectTransform>().sizeDelta *= canvasUI.transform.localScale;
 
-	}
+
+		//
+		pauseBtn = canvasUI.transform.Find("PauseButton").GetComponent<Button>();
+		pauseBtn.onClick.AddListener(() => pauseGame());
+		pauseBG = canvasUI.transform.Find("PauseBG").gameObject;
+		Transform t = pauseBG.transform.Find("PauseMenu");
+		t.transform.Find("Resume").GetComponent<Button>()
+			.onClick.AddListener(() => pauseGame());
+		t.transform.Find("Exit").GetComponent<Button>()
+			.onClick.AddListener(() => exitGame());
+		isPause = false;
+		pauseFadeDt = 0;
+		_pauseFadeDt = 0.2f;
+}
 
 	private void Start()
 	{
@@ -114,11 +130,51 @@ public class UIManager : MonoBehaviour
 			+ player.hp + " / " + player._hp;
 
 		text_Gold.text = "Gold : " + g.gold;
+
+		if(Input.GetKeyDown(KeyCode.Escape))
+		{
+			pauseGame();
+		}
 	}
 
 	private void OnGUI()
 	{
 		drawMinimap();
+	}
+
+	private void pauseGame()
+	{
+		isPause = !isPause;
+		pauseBG.SetActive(isPause);
+		if(isPause)
+			StartCoroutine("pauseGameFade");
+	}
+
+	private void exitGame()
+	{
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
+#else
+		Application.Quit();
+#endif
+	}
+
+	private IEnumerator pauseGameFade()
+	{
+		pauseFadeDt = 0;
+		while (true)
+		{
+			pauseFadeDt += Time.deltaTime;
+			if(pauseFadeDt > _pauseFadeDt)
+			{
+				pauseBG.GetComponent<Image>().color = Color.black;
+				break;
+			}
+			Color c = new Color(0, 0, 0, pauseFadeDt / _pauseFadeDt);
+			pauseBG.GetComponent<Image>().color = c;
+
+			yield return null;
+		}
 	}
 
 	public void miniMapSizing()
