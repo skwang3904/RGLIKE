@@ -95,8 +95,8 @@ public class UIManager : MonoBehaviour
 
 
 		GameObject inven = Instantiate(Resources.Load("Prefabs/UI/Inventory")) as GameObject;
-		inven.transform.SetParent(canvasUI.transform);
-		inven.transform.SetSiblingIndex(canvasUI.transform.childCount - 2);
+		//inven.transform.SetParent(canvasUI.transform);
+		//inven.transform.SetSiblingIndex(canvasUI.transform.childCount - 2);
 		inven.GetComponent<RectTransform>().sizeDelta *= canvasUI.transform.localScale;
 
 
@@ -186,11 +186,11 @@ public class UIManager : MonoBehaviour
 		minimapLargeSize = !minimapLargeSize;
 		if(minimapLargeSize)
 		{
-			Vector2 v = canvasScaler.referenceResolution / 3;
+			Vector2 v = Camera.main.ViewportToScreenPoint(new Vector2(0.2f,0.2f));
 
-			float min = Mathf.Min(Screen.width, Screen.height);
+			float min = size_minimap * 2;
 			rect_MiniMapBG.sizeDelta = new Vector2(min, min);
-			rect_MiniMapBG.anchoredPosition = -v;
+			//rect_MiniMapBG.anchoredPosition = -v;
 			Time.timeScale = 0f;
 		}
 		else

@@ -57,7 +57,7 @@ public class Inventory : MonoBehaviour
 		img = GetComponent<Image>();
 		text = transform.GetComponent<Text>();
 
-		Vector2 invenPos = Camera.main.ViewportToScreenPoint(new Vector2(0.4f,0.3f));
+		Vector2 invenPos = Camera.main.ViewportToScreenPoint(new Vector2(0.2f,0.2f));
 		GetComponent<RectTransform>().anchoredPosition = invenPos;
 
 		//------------------------------------------------------------
@@ -89,13 +89,15 @@ public class Inventory : MonoBehaviour
 		_invenOpenDt = 0.2f;
 		inventoryOpenClose();
 
+		//------------------------------------------------------------
 		// quick slot
 		list_quickSlot = new LinkedList<Inventory_Slot>();
 		GameObject quick_go = UIManager.instance.canvasUI.transform.Find("QuickSlots").gameObject;
-		slotBasePosition.Set(-(140 * 2 + 50 * 1.5f), 0);
+		//slotBasePosition.Set(-(140 * 2 + 50 * 1.5f), 0);
+		slotBasePosition.Set(-(140 * 2), 0);
 		for (i = 0; i < quickSlotNum; i++) 
 		{
-			v.Set(slotDis.x * (i % 4), 0);
+			v.Set((slotDis.x - 50) * (i % 4), 0);
 			slots_go = Instantiate(Resources.Load("Prefabs/UI/Inventory_Slot"),
 				(Vector2)quick_go.transform.position + slotBasePosition + v,
 				Quaternion.identity) as GameObject;
@@ -122,15 +124,12 @@ public class Inventory : MonoBehaviour
 		mci.clickImg.rectTransform.anchorMin = vZero;
 		mci.clickImg.rectTransform.anchorMax = vZero;
 
+		transform.SetParent(UIManager.instance.canvasUI.transform);
 		transform.SetAsLastSibling();
 		quick_go.transform.SetAsLastSibling();
 		g.transform.SetAsLastSibling();
 	}
 
-	private void Start()
-	{
-
-	}
 
 	private void Update()
 	{
