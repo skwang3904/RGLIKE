@@ -166,14 +166,19 @@ public class Player : LivingEntity, IDamageable, IInitialize
     public void initialize(int mapNum)
 	{
         state = EntityState.idle;
-        mapNumber = mapNum;
-        hp = _hp = 100;
-        dmg = _dmg = 10;
-        attackDt = _attackDt = 1;
-        moveSpeed = 10;
+
+        PlayerData pd = LevelData.instance.playerData;
+        mapNumber = pd.mapNumber;
+        hp = pd.hp;
+        _hp = pd._hp;
+        dmg = pd.dmg;
+        _dmg = pd._dmg;
+        attackDt = pd.attackDt;
+        _attackDt = pd._attackDt;
+        moveSpeed = pd.moveSpeed;
     }
 
-
+    //---------------------------------------------------
     //---------------------------------------------------
     // State function
     private void setStateIdle()

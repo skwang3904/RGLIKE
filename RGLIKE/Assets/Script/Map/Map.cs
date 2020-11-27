@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class Map : MonoBehaviour
 {
-	
 	public SpriteRenderer spriteRenderer;
 
 	private GameObject[] doors; // 맵의 각 문 // 딱히 없어도될듯?
 	private BoxCollider2D[] doorsCollider;
 	private SpriteRenderer[] doorSpriteRenderers; // 각 문의 스프라이트렌더러
-	private Sprite[,] doorSprites; // 문의 총 스프라이트
+	private Sprite[,] doorSprites; // 문의 총 스프라이트 => 하나로 만들기
 	private int[] doorIndex; // 문의 각 인덱스 0:close, 1:open, 2:closeKey
 
 	public MapState state;
 	public int mapNumber;
 
 	private Player player;
-	private Monster[] monsters; // 몬스터 만들고 수정
+	private Monster[] monsters; // 이 맵에 있는 몬스터
 
 	private void Awake()
 	{
@@ -82,6 +81,7 @@ public class Map : MonoBehaviour
 	{
 		int i, j = 0;
 		player = GameManager.instance.player;
+
 		// 이 맵번호와 같은 맵번호를 가진 몬스터를 검사하여 문을 열거나 닫음
 		int mNum = transform.Find("MonsterSpawn").childCount;
 
@@ -102,11 +102,10 @@ public class Map : MonoBehaviour
 			state == MapState.shop)
 		{
 			LevelData ld = LevelData.instance;
-			ref bool[] check = ref ld.MAP_DATA;
-			int sqrt = ld.MAP_TOTAL_SQRT;
+			ref bool[] check = ref ld.mapData.maps;
+			int sqrt = ld.mapData.mapTotalSqrt;
 			int n = mapNumber;
 			
-
 			// 보스방 & 상점 검사
 			if (n % sqrt == 0		 || check[n - 1] == false) doorLocked(0);
 			if (n % sqrt == sqrt - 1 || check[n + 1] == false) doorLocked(1);
@@ -175,8 +174,8 @@ public class Map : MonoBehaviour
 					{
 						case 0: gm.passMapStart(mapNumber - 1);  break;
 						case 1: gm.passMapStart(mapNumber + 1); break;
-						case 2: gm.passMapStart(mapNumber + LevelData.instance.MAP_TOTAL_SQRT); break;
-						case 3: gm.passMapStart(mapNumber - LevelData.instance.MAP_TOTAL_SQRT); break;
+						case 2: gm.passMapStart(mapNumber + LevelData.instance.mapData.mapTotalSqrt); break;
+						case 3: gm.passMapStart(mapNumber - LevelData.instance.mapData.mapTotalSqrt); break;
 						default: 
 							print("door["+ mapNumber +"] index["+ i +"] error"); 
 							break;

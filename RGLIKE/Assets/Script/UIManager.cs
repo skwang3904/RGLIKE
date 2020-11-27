@@ -204,8 +204,8 @@ public class UIManager : MonoBehaviour
 	private void drawMinimap()
 	{
 		int i;
-		int total = LevelData.instance.MAP_TOTAL_NUM;
-		int sqrt = LevelData.instance.MAP_TOTAL_SQRT;
+		int total = LevelData.instance.mapData.mapTotalNum;
+		int sqrt = LevelData.instance.mapData.mapTotalSqrt;
 		Map[] maps = GameManager.instance.maps;
 
 

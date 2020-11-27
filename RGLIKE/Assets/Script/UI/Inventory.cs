@@ -137,8 +137,8 @@ public class Inventory : MonoBehaviour
 		//inventoryOpen = true;
 		if (Input.GetKeyDown(KeyCode.G))
 		{
-			addItem(Item.items[0, 0]);
-			addItem(Item.items[1, 0]);
+			addItem(Item.items[0][0]);
+			addItem(Item.items[1][0]);
 		}
 
 #endif

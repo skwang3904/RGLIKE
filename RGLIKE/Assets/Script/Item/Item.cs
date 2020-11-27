@@ -5,13 +5,16 @@ using UnityEngine;
 
 public class Item : NonLivingEntity, IItem
 {
-	public static Item[,] items = null;
+	public static List<Item>[] items = null;
 	public static int Max_itemNum = 10;
 	public static void createItems()
 	{
 		if (items != null)
 			return;
-		items = new Item[(int)IMacro.Item_Name.Max, Max_itemNum];
+
+		items = new List<Item>[(int)IMacro.Item_Name.Max];
+		for(int i=0; i<items.Length;i++)
+			items[i] = new List<Item>();
 	}
 
 	public string strName;
@@ -30,8 +33,8 @@ public class Item : NonLivingEntity, IItem
 	}
 
 	public virtual void initialize(int mapNum, Vector2 position)
-	{ 
-		transform.position = new Vector2(-100,-100);
+	{
+		transform.position = new Vector2(-100, -100);
 		state = NonEntityState.NonAppear;
 		//mapNumber = mapNum;
 		value = 0;
@@ -100,26 +103,20 @@ public class Item : NonLivingEntity, IItem
 	//-------------------------------------------------------
 	// drop function
 
-	public static void dropItem(int mapNum, Vector2 position, 
+	public static void dropItem(int mapNum, Vector2 position,
 		IMacro.Item_Name index, int num)
 	{
-		int i, idx = (int)index;
+		int idx = (int)index;
 		int n = 0;
 
-		for (i = 0; i < Max_itemNum; i++) 
+		foreach (Item it in items[idx])
 		{
-			Item it = items[idx, i];
 			if (it.state == NonEntityState.NonAppear)
 			{
 				it.appearItem(mapNum, position);
 				n++;
 			}
 
-			if(i == Max_itemNum-1)
-			{
-				print("item num total over");
-				break;
-			}
 			if (n >= num)
 				break;
 		}

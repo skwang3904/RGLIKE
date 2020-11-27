@@ -8,6 +8,7 @@ using Cinemachine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance { get; private set; }
+    public bool isGameOver;
 
     // Score
     public int totalScore;
@@ -15,13 +16,11 @@ public class GameManager : MonoBehaviour
     public float totalPlayTime;
     public float currStageTime;
     public int gold;
-    public bool isGameOver;
-    public float gameOverDt, _gameOverDt;
+    private float gameOverDt;
+    private const float _gameOverDt = 1f;
+
     // Map
     public Map[] maps { get; private set; }
-
-    // Items
-    //public Item[,] items;
 
     // Player
     public Player player { get; private set; }
@@ -39,7 +38,7 @@ public class GameManager : MonoBehaviour
     private Vector2 nextMapSize;
 
     // Monster
-    private Monster[] monsters;
+    private Monster[] monsters; // 총 몬스터
    
     private void Awake()
 	{
@@ -49,15 +48,23 @@ public class GameManager : MonoBehaviour
 			Destroy(gameObject);
 		DontDestroyOnLoad(gameObject);
 
-        _gameOverDt = 1.0f;
+        LevelData ld = LevelData.instance;
+        if(SaveLoad.isNewGame)
+		{
+            ld.startLevel();
+		}
+        else
+		{
+            ld.loadLevel();
+        }
 
-        createItems(); // items[] 풀메모리
+        //player = FindObjectOfType<Player>();
 
-        createMap(); // maps[]
+        createMap(); // maps
         createPlayer(); // vCamera
-
         createMapObject();
         createMonster();
+        createItems(); // items[] 풀메모리
     }
 
     private void Update()
@@ -68,8 +75,6 @@ public class GameManager : MonoBehaviour
             
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
-
-        passMapAnimation();
     }
 
     public void addScore(int hp)
@@ -102,215 +107,48 @@ public class GameManager : MonoBehaviour
     private void createMap()
 	{
         int i;
-        if (maps != null)
-        {
-            for (i = 0; i < maps.Length; i++)
-            {
+        if(maps != null)
+		{
+            for (i = 0; i < maps.Length; i++) 
+			{
                 Destroy(maps[i]);
+                maps[i] = null;
             }
             maps = null;
-        }
-
-        LevelData ld = LevelData.instance;
-        ld.setStage();
-
-        int connectNum = ld.MAP_CONNECT_NUM;
-        int totalNum = ld.MAP_TOTAL_NUM;
-        ref bool[] check = ref ld.MAP_DATA;
-        bool[] visit = new bool[totalNum];
-        int random;
-        int connected = 0;
-        int count;
-
-        // MapData 생성, 연결
-        while (connected != connectNum)
-        {
-            connected = 0;
-            count = 0;
-            check = Enumerable.Repeat(false, check.Length).ToArray();
-            visit = Enumerable.Repeat(false, visit.Length).ToArray();
-
-            while (count != connectNum)
-            {
-                random = Random.Range(0, totalNum);
-                if (check[random] == false)
-                {
-                    check[random] = true;
-                    count++;
-                }
-            }
-
-            for (i = 0; i < totalNum; i++)
-            {
-                connectMapData(visit, check, i, ref connected);
-
-                if (connected == connectNum)
-                    break;
-                connected = 0;
-                visit = Enumerable.Repeat(false, visit.Length).ToArray();
-            }
-        }
-
-        // 현재맵에 연결된 맵 체크 후 맵프리팹 생성
-        maps = new Map[totalNum];
-        for (i = 0; i < totalNum; i++)
-            connectCountCheck(check, i);
-
-        for (i = totalNum - 1; i > -1; i--)
-		{
-            if (maps[i])
-			{
-                Destroy(maps[i].gameObject);
-
-                loadMapPrefabs(IMacro.MapName[(int)IMacro.MAP_NAME.room_boss0], i);
-                maps[i].mapNumber = i;
-                maps[i].state = MapState.boss;
-                break;
-			}
 		}
-    }
 
-    private void connectMapData(bool[] visit, bool[] check, int index, ref int connected)
-    {
-        // 맵이 MAP_CONNECT_NUM 만큼 연결됐는지 확인
-        if (index < 0 || index > LevelData.instance.MAP_TOTAL_NUM - 1)
-            return;
+        MapData md = LevelData.instance.mapData;
+        int sqrt = md.mapTotalSqrt;
+        int num = md.mapTotalNum;
+        string name = "";
+        GameObject g = null;
+        Sprite sp = null;
+        float width = 0;
+        float height = 0;
+        Vector2 position = Vector2.zero;
 
-        if (check[index] == false || visit[index] == true)
-            return;
+        maps = new Map[num];
 
-        visit[index] = true;
-        connected++;
-
-        int sqrt = LevelData.instance.MAP_TOTAL_SQRT;
-        if (index % sqrt > 0)           connectMapData(visit, check, index - 1, ref connected);
-        if (index % sqrt < sqrt - 1)    connectMapData(visit, check, index + 1, ref connected);
-        if (index / sqrt > 0)           connectMapData(visit, check, index - sqrt, ref connected);
-        if (index / sqrt < sqrt - 1)    connectMapData(visit, check, index + sqrt, ref connected);
-    }
-
-	private void connectCountCheck(bool[] check, int i)
-	{
-        if (!check[i])
+        for (i = 0; i < num; i++)
 		{
-            Destroy(maps[i]);
-            maps[i] = null;
-            return;
-		}
-        
-        // 실제 맵 생성
-        LevelData ld = LevelData.instance;
-        int sqrt = ld.MAP_TOTAL_SQRT;
-        bool l = false;
-        bool r = false;
-        bool u = false;
-        bool d = false;
+            if (!md.maps[i])
+                continue;
 
-        if (i % sqrt > 0)           l = check[i - 1];
-        if (i % sqrt < sqrt - 1)    r = check[i + 1];
-        if (i / sqrt < sqrt - 1)    u = check[i + sqrt];
-        if (i / sqrt > 0)           d = check[i - sqrt];
-        // 위아래 반대로 검사함
+            name = IMacro.MapName[(int)md.mapName[i]];
+            g = Instantiate(Resources.Load("Prefabs/Map/" + name)) as GameObject;
+            g.transform.SetParent(GameObject.Find("Maps").transform);
 
-        int sum = 0;
-        if (l) sum++;
-        if (r) sum++;
-        if (u) sum++;
-        if (d) sum++;
+            sp = g.GetComponent<SpriteRenderer>().sprite;
+            width = sp.bounds.size.x;
+            height = sp.bounds.size.y;
+            position.Set(
+                (width - 0.5f) * (i % sqrt), 
+                (height - 0.5f) * (i / sqrt));
+            g.transform.position = position;
 
-        int n = 0;
-        switch (sum)
-        {
-            case 4:
-                {
-                    n = (int)IMacro.MAP_NAME.room_4way;
-                    break;
-                }
-            case 3:
-                {
-                    if      (r && u && d) n = (int)IMacro.MAP_NAME.room_3way0;
-                    else if (l && u && d) n = (int)IMacro.MAP_NAME.room_3way1;
-                    else if (l && r && d) n = (int)IMacro.MAP_NAME.room_3way2;
-                    else if (l && r && u) n = (int)IMacro.MAP_NAME.room_3way3;
-                    else
-                        print("Map Not Connect : " + i + "번째");
-                    break;
-                }
-            case 2:
-                {
-                    if      (l && r) n = (int)IMacro.MAP_NAME.room_2way0;
-                    else if (u && d) n = (int)IMacro.MAP_NAME.room_2way1;
-                    else if (l && u) n = (int)IMacro.MAP_NAME.room_2way2;
-                    else if (l && d) n = (int)IMacro.MAP_NAME.room_2way3;
-                    else if (r && u) n = (int)IMacro.MAP_NAME.room_2way4;
-                    else if (r && d) n = (int)IMacro.MAP_NAME.room_2way5;
-                    else
-                        print("Map Not Connect : " + i + "번째");
-                    break;
-                }
-            case 1:
-                {
-                    if      (l) n = (int)IMacro.MAP_NAME.room_1way0;
-                    else if (r) n = (int)IMacro.MAP_NAME.room_1way1;
-                    else if (u) n = (int)IMacro.MAP_NAME.room_1way2;
-                    else if (d) n = (int)IMacro.MAP_NAME.room_1way3;
-                    else
-                        print("Map Not Connect : " + i + "번째");
-                    break;
-                }
-            case 0:
-                {
-                    print("Map Not Connect : " + i + "번째");
-                    break;
-                }
-        }
-
-        string name = IMacro.MapName[n];
-        loadMapPrefabs(name, i);
-    }
-
-    private void loadMapPrefabs(string name, int i)
-	{
-        LevelData ld = LevelData.instance;
-        int sqrt = ld.MAP_TOTAL_SQRT;
-
-        GameObject g = Instantiate(Resources.Load("Prefabs/Map/" + name)) as GameObject;
-        g.transform.SetParent(GameObject.Find("Maps").transform);
-
-        Sprite sp = g.GetComponent<SpriteRenderer>().sprite;
-        int width = Mathf.FloorToInt(sp.bounds.size.x);
-        int height = Mathf.FloorToInt(sp.bounds.size.y);
-        Vector3 position = new Vector3(width * (i % sqrt), height * (i / sqrt), 0);
-        g.transform.position = position;
-
-        maps[i] = g.GetComponent<Map>();
-        maps[i].mapNumber = i;
-        maps[i].state = MapState.nomal;
-    }
-
-    //---------------------------------------------------------------------------
-    // createItems
-    private void createItems()
-    {
-        int i, j;
-        Item.createItems();
-        int kinds = (int)IMacro.Item_Name.Max;
-        int num = Item.Max_itemNum;
-
-        ref string[] istr = ref IMacro.ItemName;
-        GameObject g;
-        GameObject parent = GameObject.Find("Items");
-        for (i = 0; i < kinds; i++)
-        {
-            for (j = 0; j < num; j++)
-            {
-                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
-                //g.GetComponent<SpriteRenderer>().sprite = null;
-
-                g.transform.SetParent(parent.transform);
-                g.transform.Translate(-100, -100, 0);
-                Item.items[i, j] = g.GetComponent<Item>();
-            }
+            maps[i] = g.GetComponent<Map>();
+            maps[i].mapNumber = i;
+            maps[i].state = md.mapStates[i];
         }
     }
 
@@ -318,24 +156,14 @@ public class GameManager : MonoBehaviour
     // createPlayer
     private void createPlayer()
 	{
-        int totalNum;
         LevelData ld = LevelData.instance;
-        totalNum = ld.MAP_TOTAL_NUM;
+        int num = ld.playerData.mapNumber;
 
         GameObject g = Instantiate(Resources.Load("Prefabs/Player/Player")) as GameObject;
-        while(true)
-		{
-            int random = Random.Range(0, totalNum);
-            Map m = maps[random];
-            if (m != null && maps[random].state == MapState.nomal)
-			{
-                g.transform.position = m.transform.Find("PlayerSpawn").position;
-                player = g.GetComponent<Player>();
-                player.initialize(random);
-                break;
-			}
-        }
-
+        g.transform.position = maps[num].transform.Find("PlayerSpawn").position;
+        player = g.GetComponent<Player>();
+        player.initialize(0);
+        
         vCameraCollider = GameObject.Find("vCameraCollider");
         vCameraCollider.transform.position = maps[player.mapNumber].transform.position;
 
@@ -345,8 +173,6 @@ public class GameManager : MonoBehaviour
         currMapNumber = nextMapNumber = player.mapNumber;
         passMapDt = _passMapDt;
     }
-
-
 
     //---------------------------------------------------------------------------
     // createMapObject
@@ -376,7 +202,7 @@ public class GameManager : MonoBehaviour
     private void createMonster()
 	{
         LevelData ld = LevelData.instance;
-        int total = ld.MAP_TOTAL_NUM;
+        int total = ld.mapData.mapTotalNum;
         int i, j, sum = 0;
 
         for (i = 0; i < total; i++)
@@ -407,13 +233,13 @@ public class GameManager : MonoBehaviour
 
             num = t.childCount;
             if(maps[i].state == MapState.boss)
-                str = "Prefabs/Monster/Destroyer";
+                str = "/Destroyer";
             else
-                str = "Prefabs/Monster/Anubis";
+                str = "/Anubis";
 
             for (j = 0; j < num; j++) 
 			{
-                g = Instantiate(Resources.Load(str),
+                g = Instantiate(Resources.Load("Prefabs/Monster" + str),
                     t.GetChild(j).transform.position,
                     Quaternion.identity) as GameObject;
                 g.transform.SetParent(monsterParent.transform);
@@ -430,16 +256,43 @@ public class GameManager : MonoBehaviour
 	}
 
     //---------------------------------------------------------------------------
+    // createItems
+    private void createItems()
+    {
+        int i, j;
+        Item.createItems();
+        int kinds = (int)IMacro.Item_Name.Max;
+        int num = Item.Max_itemNum;
+
+        ref string[] istr = ref IMacro.ItemName;
+        GameObject g;
+        GameObject parent = GameObject.Find("Items");
+        for (i = 0; i < kinds; i++)
+        {
+            for (j = 0; j < num; j++)
+            {
+                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
+                //g.GetComponent<SpriteRenderer>().sprite = null;
+
+                g.transform.SetParent(parent.transform);
+                g.transform.Translate(-100, -100, 0);
+                Item.items[i].Add(g.GetComponent<Item>());
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------------
     // passMap
     public bool isPassMap()
 	{
         return passMapDt != _passMapDt;
     }
+
     public void passMapStart(int mapNum)
 	{
         if(currMapNumber == mapNum)
 		{
-            print("Same PassMapNumber");
+            print("Same PassMapNumber error");
             return;
 		}
 
@@ -462,13 +315,12 @@ public class GameManager : MonoBehaviour
         player.transform.position = 
             (Vector2)player.transform.position 
             + (nextMapPos - currMapPos) * 0.4f;
+
+        StartCoroutine(passMap_Coroutine());
     }
 
     private void passMapAnimation()
 	{
-        if (currMapNumber == nextMapNumber)
-            return;
-
         passMapDt += Time.deltaTime;
         if(passMapDt >= _passMapDt)
 		{
@@ -487,4 +339,31 @@ public class GameManager : MonoBehaviour
         BoxCollider2D box = vCameraCollider.GetComponent<BoxCollider2D>();
         box.size = Vector2.Lerp(currMapSize, nextMapSize, dt);
     }
+
+    private IEnumerator passMap_Coroutine()
+	{
+        while(true)
+		{
+            passMapDt += Time.deltaTime;
+            if (passMapDt >= _passMapDt)
+            {
+                currMapNumber = nextMapNumber;
+                player.mapNumber = currMapNumber;
+                passMapDt = _passMapDt;
+                break;
+            }
+
+            float dt = passMapDt / _passMapDt;
+
+            vCameraCollider.transform.position = Vector2.Lerp(
+                currMapPos,
+                nextMapPos,
+                dt);
+
+            BoxCollider2D box = vCameraCollider.GetComponent<BoxCollider2D>();
+            box.size = Vector2.Lerp(currMapSize, nextMapSize, dt);
+
+            yield return null;
+		}
+	}
 }
