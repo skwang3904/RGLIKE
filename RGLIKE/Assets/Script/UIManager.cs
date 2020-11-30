@@ -118,6 +118,8 @@ public class UIManager : MonoBehaviour
 	{
 		player = GameManager.instance.player;
 		g = GameManager.instance;
+
+		UIMouse.instance.transform.SetAsLastSibling();
 	}
 
 	private void Update()

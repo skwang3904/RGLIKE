@@ -58,8 +58,6 @@ public class GameManager : MonoBehaviour
             ld.loadLevel();
         }
 
-        //player = FindObjectOfType<Player>();
-
         createMap(); // maps
         createPlayer(); // vCamera
         createMapObject();

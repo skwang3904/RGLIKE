@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7709939902941709039}
   m_Layer: 5
   m_Name: Item_Num
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 6823592392632192157}
   m_Layer: 5
   m_Name: Item_Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 2140051064465622586}
   m_Layer: 5
   m_Name: Quick_Num
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -322,7 +322,7 @@ GameObject:
   - component: {fileID: 5616735984990193744}
   m_Layer: 5
   m_Name: Inventory_Slot
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -399,6 +399,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
+  connectSlot: {fileID: 0}
   key: 0
   item: {fileID: 0}
   btn: {fileID: 0}
