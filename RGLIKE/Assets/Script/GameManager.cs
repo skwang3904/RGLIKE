@@ -259,7 +259,7 @@ public class GameManager : MonoBehaviour
     {
         int i, j;
         Item.createItems();
-        int kinds = (int)IMacro.Item_Name.Max;
+        int kinds = (int)IMacro.Item_Type.Max;
         int num = Item.Max_itemNum;
 
         ref string[] istr = ref IMacro.ItemName;

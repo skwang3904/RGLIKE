@@ -32,10 +32,4 @@ public class NonLivingEntity : MonoBehaviour
 	private void setAppearTrue() { isAppear = true; }
 	private void setActiveTrue() { isActive = true; }
 	private void setDisappearTrue() { isDisappear = true; }
-
-	public void setItemState(NonEntityState state)
-	{
-		this.state = state;
-		animator.SetInteger("ItemState", (int)state);
-	}
 }

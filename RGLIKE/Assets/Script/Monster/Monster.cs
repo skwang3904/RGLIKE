@@ -22,7 +22,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 	public bool isAttack;
 
 	public bool isHurt;
-	public IMacro.Item_Name dropItem;
+	public IMacro.Item_Type dropItem;
 
 	protected override void Awake()
 	{
@@ -173,7 +173,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 
 	private void dropItemWhenDead()
 	{
-		Item.dropItem(mapNumber, transform.position, IMacro.Item_Name.Potion, 1);
-		Item.dropItem(mapNumber, (Vector2)transform.position + Random.insideUnitCircle * 2, IMacro.Item_Name.Gold, 1);
+		Item.dropItem(mapNumber, transform.position, IMacro.Item_Type.Potion, 1);
+		Item.dropItem(mapNumber, (Vector2)transform.position + Random.insideUnitCircle * 2, IMacro.Item_Type.Gold, 1);
 	}
 }

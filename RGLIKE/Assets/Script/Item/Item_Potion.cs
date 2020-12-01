@@ -7,7 +7,7 @@ public class Item_Potion : Item
 	protected override void Awake()
 	{
 		base.Awake();
-
+		initialize(0, IMacro.Item_Type.Potion);
 	}
 
 	private void Update()
@@ -19,18 +19,13 @@ public class Item_Potion : Item
 		commonFunction();
 	}
 
-	public override void initialize(int mapNum, Vector2 position)
+	public override void initialize(int mapNum, IMacro.Item_Type type)
 	{
-		base.initialize(mapNum, position);
+		base.initialize(mapNum, type);
 
 		//setItemState(NonEntityState.Appear);
-		strName = IMacro.ItemName[(int)IMacro.Item_Name.Potion];
+		this.type = type;
+		strName = IMacro.ItemName[(int)IMacro.Item_Type.Potion];
 		value = 10;
-		useMethod += healthPlayer;
-	}
-
-	private void healthPlayer()
-	{
-		player.hp += value;
 	}
 }

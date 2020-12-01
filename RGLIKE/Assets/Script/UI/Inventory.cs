@@ -18,6 +18,8 @@ public class Inventory : MonoBehaviour
 	private RectTransform maskRectf;
 	private Scrollbar invenScrollbar;
 
+	private List<Item> list_Item;
+	public Sprite[] imgItems;
 	//------------------------------------------------------------
 	// inven slot
 
@@ -75,8 +77,17 @@ public class Inventory : MonoBehaviour
 		invenScrollbar = transform.Find("Scrollbar").GetComponent<Scrollbar>();
 		invenScrollbar.onValueChanged.AddListener(invenActiveScroll);
 
+		list_Item = new List<Item>();
+		imgItems = new Sprite[(int)IMacro.Item_Type.Max];
+		for (i = 0; i < imgItems.Length; i++) 
+		{
+			imgItems[i] = Resources.Load("Sprite/Item/" 
+				+ IMacro.ItemName[i]) as Sprite;
+		}
+
 		//------------------------------------------------------------
 		// inven slot
+
 		list_invenSlot = new LinkedList<Inventory_Slot>();
 		slotPos = new Vector2[slotNum];
 		Inventory_Slot slot;
@@ -159,8 +170,8 @@ public class Inventory : MonoBehaviour
 		//inventoryOpen = true;
 		if (Input.GetKeyDown(KeyCode.G))
 		{
-			addItem(Item.items[0][0]);
-			addItem(Item.items[1][0]);
+			addListItem(Item.items[0][0]);
+			addListItem(Item.items[1][0]);
 		}
 
 #endif
@@ -189,7 +200,8 @@ public class Inventory : MonoBehaviour
 		int nn = 0;
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
-			slot.GetComponent<RectTransform>().anchoredPosition = slotPos[nn++] + invenLimit;
+			slot.GetComponent<RectTransform>().anchoredPosition = 
+				slotPos[nn++] + invenLimit;
 		}
 	}
 
@@ -400,18 +412,19 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
-	public void addItem(Item item)
+	//
+
+	public void addListItem(Item item)
 	{
-		// 습득시 인벤토리에 추가
-		foreach(Inventory_Slot slot in list_invenSlot)
+		foreach (Inventory_Slot slot in list_invenSlot)
 		{
+			//#issue 추후 아이템 종류 추가시 수정
 			if (slot.item == null)
 				continue;
 
-			if (slot.item.strName == item.strName)
+			if (slot.item.type == item.type)
 			{
-				slot.num++;
-				slot.itemNum.text = slot.num.ToString();
+				slot.addItemNum(1);
 				return;
 			}
 		}
@@ -420,13 +433,15 @@ public class Inventory : MonoBehaviour
 		{
 			if (slot.item == null)
 			{
-				slot.item = item;
-				slot.itemImg.sprite = Resources.Load("Sprite/Item/" + item.strName, typeof(Sprite)) as Sprite;
-				slot.itemImg.color = IMacro.color_White;
-				slot.num++;
-				slot.itemNum.text = slot.num.ToString();
+				list_Item.Add(item);
+				slot.addItemInvenSlot(item);
 				break;
 			}
 		}
+	}
+
+	public void invenUpdate()
+	{
+
 	}
 }

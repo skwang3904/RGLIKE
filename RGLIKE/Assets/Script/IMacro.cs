@@ -59,20 +59,22 @@ public static class IMacro
 
 	//---------------------------------------------------------------
 
-	public enum Item_Name
+	public enum Item_Type
 	{
 		Gold = 0,
 		Potion,
 
-		Max,
 		None,
+		Max,
 	}
 
 	public static string[] ItemName =
 	{
 		"Gold",
 		"Potion",
-
+		"Gold",
+		"Potion",
+		"",
 	};
 
 	//---------------------------------------------------------------

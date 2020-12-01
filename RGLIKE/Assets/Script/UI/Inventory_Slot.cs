@@ -17,7 +17,7 @@ public class Inventory_Slot : MonoBehaviour
 
 	public Item item;
 	public Button btn; // 이벤트 없이 클릭작동만
-	public int num;
+	private int num;
 
 	private void Awake()
 	{
@@ -29,6 +29,8 @@ public class Inventory_Slot : MonoBehaviour
 
 		quickNum = transform.transform.Find("Quick_Num").
 			GetComponent<Text>();
+
+		num = 0;
 	}
 
 	private void LateUpdate()
@@ -79,14 +81,9 @@ public class Inventory_Slot : MonoBehaviour
 		}
 
 		item.onUse();
-		num--;
-		itemNum.text = num.ToString();
-		if (num <= 0)
-		{
-			clear();
-		}
+		addItemNum(-1);
 
-		if(connectSlot)
+/*		if(connectSlot)
 		{
 			connectSlot.num--;
 			connectSlot.itemNum.text = connectSlot.num.ToString();
@@ -94,7 +91,7 @@ public class Inventory_Slot : MonoBehaviour
 			{
 				connectSlot.clear();
 			}
-		}
+		}*/
 	}
 
 	public void changeSlot(Inventory_Slot slot)
@@ -125,6 +122,26 @@ public class Inventory_Slot : MonoBehaviour
 		slot.itemNum.text = slot.num.ToString();
 	}
 
+	public void addItemInvenSlot(Item item)
+	{
+		this.item = item;
+		//itemImg.sprite = Resources.Load("Sprite/Item/" + item.strName, typeof(Sprite)) as Sprite;
+		itemImg.sprite = Inventory.instance.imgItems[(int)item.type];
+		itemImg.color = IMacro.color_White;
+		num++;
+	}
+
+	public void addItemNum(int n)
+	{
+		num += n;
+		if (num <= 0)
+		{
+			clear();
+			return;
+		}
+		itemNum.text = num.ToString();
+	}
+
 	public void addItemQuickSlot(Inventory_Slot slot)
 	{
 		connectSlot = slot;
@@ -134,7 +151,7 @@ public class Inventory_Slot : MonoBehaviour
 		itemImg.color = IMacro.color_White;
 		slot.itemImg.color = IMacro.color_White;
 		num = slot.num;
-		itemNum.text = num.ToString();
+		itemNum.text = slot.itemNum.text;
 	}
 
 	public void removeItemQuickSlot()

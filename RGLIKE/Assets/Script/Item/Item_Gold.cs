@@ -7,6 +7,7 @@ public class Item_Gold : Item
 	protected override void Awake()
 	{
 		base.Awake();
+		initialize(0, IMacro.Item_Type.Gold);
 
 	}
 
@@ -19,18 +20,13 @@ public class Item_Gold : Item
 		commonFunction();
 	}
 
-	public override void initialize(int mapNum, Vector2 position)
+	public override void initialize(int mapNum, IMacro.Item_Type type)
 	{
-		base.initialize(mapNum, position);
+		base.initialize(mapNum, type);
 
 		//setItemState(NonEntityState.Appear);
-		strName = IMacro.ItemName[(int)IMacro.Item_Name.Gold];
+		this.type = type;
+		strName = IMacro.ItemName[(int)IMacro.Item_Type.Gold];
 		value = 1;
-		useMethod += plusGold;
-	}
-
-	private void plusGold()
-	{
-		GameManager.instance.gold += value;
 	}
 }

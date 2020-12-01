@@ -32,6 +32,6 @@ public class MapObject_Lever : MapObject
 	{
 		Item.dropItem(mapNumber,
 			(Vector2)transform.position + Random.insideUnitCircle * 3,
-			IMacro.Item_Name.Gold, 1);
+			IMacro.Item_Type.Gold, 1);
 	}
 }

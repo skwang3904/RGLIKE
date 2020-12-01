@@ -14,7 +14,7 @@ public interface IInitialize
 
 public interface IItem
 {
-	void initialize(int mapNum, Vector2 position);
+	void initialize(int mapNum, IMacro.Item_Type type);
 	void onUse();
 }
 
