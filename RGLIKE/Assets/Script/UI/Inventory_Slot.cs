@@ -9,14 +9,13 @@ public class Inventory_Slot : MonoBehaviour
 	//private Image img { get; private set; }
 	public Image itemImg { get; private set; }
 	public Text itemNum { get; private set; }
-	public Text quickNum { get; private set; }
+	public Text quickShortcutKey { get; private set; }
 
 	public InventorySlotType type;
 	public Inventory_Slot connectSlot;
-	public KeyCode key;
+	private KeyCode key;
 
 	public Item item;
-	public Button btn; // 이벤트 없이 클릭작동만
 	private int num;
 
 	private void Awake()
@@ -27,7 +26,7 @@ public class Inventory_Slot : MonoBehaviour
 		itemNum = transform.transform.Find("Item_Num").
 			GetComponent<Text>();
 
-		quickNum = transform.transform.Find("Quick_Num").
+		quickShortcutKey = transform.transform.Find("Quick_Num").
 			GetComponent<Text>();
 
 		num = 0;
@@ -59,7 +58,7 @@ public class Inventory_Slot : MonoBehaviour
 		itemNum.text = num.ToString();
 
 		if (type == InventorySlotType.Quick)
-			quickNum.text = (i + 1).ToString();
+			quickShortcutKey.text = (i + 1).ToString();
 	}
 
 	public void clear()
@@ -67,7 +66,6 @@ public class Inventory_Slot : MonoBehaviour
 		item = null;
 		itemImg.sprite = null;
 		itemImg.color = IMacro.color_NoneAlpha;
-		//btn.onClick.RemoveAllListeners();
 		num = 0;
 		itemNum.text = num.ToString();
 	}
@@ -83,15 +81,56 @@ public class Inventory_Slot : MonoBehaviour
 		item.onUse();
 		addItemNum(-1);
 
-/*		if(connectSlot)
+		if(connectSlot)
 		{
-			connectSlot.num--;
-			connectSlot.itemNum.text = connectSlot.num.ToString();
+			connectSlot.addItemNum(-1);
 			if (connectSlot.num <= 0)
 			{
 				connectSlot.clear();
 			}
-		}*/
+		}
+	}
+
+	public void addItemNum(int n)
+	{
+		num += n;
+		itemNum.text = num.ToString();
+		if (num <= 0)
+		{
+			clear();
+		}
+
+	}
+
+	public void addItemInvenSlot(Item item)
+	{
+		this.item = item;
+		itemImg.sprite = Inventory.instance.listItemSprite[(int)item.type];
+		itemImg.color = IMacro.color_White;
+		addItemNum(1);
+	}
+
+
+	public void addItemQuickSlot(Inventory_Slot slot)
+	{
+		connectSlot = slot;
+		connectSlot.connectSlot = this;
+		item = slot.item;
+		itemImg.sprite = slot.itemImg.sprite;
+		itemImg.color = IMacro.color_White;
+		slot.itemImg.color = IMacro.color_White;
+		num = slot.num;
+		itemNum.text = num.ToString();
+	}
+
+	public void removeItemQuickSlot()
+	{
+		connectSlot = null;
+		item = null;
+		itemImg.sprite = null;
+		itemImg.color = IMacro.color_NoneAlpha;
+		num = 0;
+		itemNum.text = num.ToString();
 	}
 
 	public void changeSlot(Inventory_Slot slot)
@@ -103,16 +142,16 @@ public class Inventory_Slot : MonoBehaviour
 		Sprite tmpSp = itemImg.sprite;
 		itemImg.sprite = slot.itemImg.sprite;
 		slot.itemImg.sprite = tmpSp;
-		itemImg.color = IMacro.color_White;
-		slot.itemImg.color = IMacro.color_NoneAlpha;
+
+		ref Color white = ref IMacro.color_White;
+		ref Color none = ref IMacro.color_NoneAlpha;
+		itemImg.color = item ? white : none;
+		slot.itemImg.color = slot.item ? white : none;
 
 		Inventory_Slot tmpSlot = connectSlot;
 		connectSlot = slot.connectSlot;
 		slot.connectSlot = tmpSlot;
 
-		/*		Button tmpBtn = btn;
-				btn = slot.btn;
-				slot.btn = tmpBtn;*/
 
 		int tmpNum = num;
 		num = slot.num;
@@ -120,47 +159,5 @@ public class Inventory_Slot : MonoBehaviour
 
 		itemNum.text = num.ToString();
 		slot.itemNum.text = slot.num.ToString();
-	}
-
-	public void addItemInvenSlot(Item item)
-	{
-		this.item = item;
-		//itemImg.sprite = Resources.Load("Sprite/Item/" + item.strName, typeof(Sprite)) as Sprite;
-		itemImg.sprite = Inventory.instance.imgItems[(int)item.type];
-		itemImg.color = IMacro.color_White;
-		num++;
-	}
-
-	public void addItemNum(int n)
-	{
-		num += n;
-		if (num <= 0)
-		{
-			clear();
-			return;
-		}
-		itemNum.text = num.ToString();
-	}
-
-	public void addItemQuickSlot(Inventory_Slot slot)
-	{
-		connectSlot = slot;
-		connectSlot.connectSlot = this;
-		item = slot.item;
-		itemImg.sprite = slot.itemImg.sprite;
-		itemImg.color = IMacro.color_White;
-		slot.itemImg.color = IMacro.color_White;
-		num = slot.num;
-		itemNum.text = slot.itemNum.text;
-	}
-
-	public void removeItemQuickSlot()
-	{
-		connectSlot = null;
-		item = null;
-		itemImg.sprite = null;
-		itemImg.color = IMacro.color_NoneAlpha;
-		num = 0;
-		itemNum.text = num.ToString();
 	}
 }

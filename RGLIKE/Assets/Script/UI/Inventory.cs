@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
+	//#issue 인벤 무작정 구현함 - 추후 수정
 	public static Inventory instance;
 
 	private RectTransform rectf;
@@ -14,45 +15,32 @@ public class Inventory : MonoBehaviour
 
 	private bool dragInven;
 	private Vector2 prevMousePos;
-	private Vector2 invenLimit;
+	private Vector2 invenPosLimit;
 	private RectTransform maskRectf;
 	private Scrollbar invenScrollbar;
 
 	private List<Item> list_Item;
-	public Sprite[] imgItems;
+	public List<Sprite> listItemSprite;
+
+	private Dropdown invenSortMenu;
+
 	//------------------------------------------------------------
 	// inven slot
 
-	private LinkedList<Inventory_Slot> list_invenSlot;
+	private List<Inventory_Slot> list_invenSlot;
 	private const int slotNum = 20;
 	private Vector2[] slotPos;
 
-	private LinkedList<Inventory_Slot> list_quickSlot;
+	private List<Inventory_Slot> list_quickSlot;
 	private const int quickSlotNum = 4;
 	public bool inventoryOpen { get; private set; }
 	private float invenOpenDt, _invenOpenDt;
 
 	//------------------------------------------------------------
 	// mouse click
-	private struct InvenClickItem
-	{
-		public Inventory_Slot clickSlot;
-		public float clickDt;
-		public const float _clickDt = 0.5f;
-		public Image clickImg;
 
-		public void init()
-		{
-/*			if(clickSlot != null)
-				clickSlot.itemImg.color = IMacro.color_NoneAlpha;*/
-			clickSlot = null;
-			clickDt = 0;
-			clickImg.sprite = null;
-			clickImg.color = IMacro.color_NoneAlpha;
-		}
-	}
-	private InvenClickItem mci;
-
+	public float clickDt;
+	public const float _clickDt = 0.5f;
 
 	private void Awake()
 	{
@@ -72,23 +60,33 @@ public class Inventory : MonoBehaviour
 
 		dragInven = false;
 		prevMousePos = Vector2.zero;
-		invenLimit = Vector2.zero;
+		invenPosLimit = Vector2.zero;
 		maskRectf = transform.Find("Inven_Mask").GetComponent<RectTransform>();
 		invenScrollbar = transform.Find("Scrollbar").GetComponent<Scrollbar>();
-		invenScrollbar.onValueChanged.AddListener(invenActiveScroll);
+		invenScrollbar.onValueChanged.AddListener(invenActiveScrollbar);
 
 		list_Item = new List<Item>();
-		imgItems = new Sprite[(int)IMacro.Item_Type.Max];
-		for (i = 0; i < imgItems.Length; i++) 
+		listItemSprite = new List<Sprite>();
+		//for (i = 0; i < (int)IMacro.Item_Type.Max; i++) 
+		for (i = 0; i < 2; i++)
 		{
-			imgItems[i] = Resources.Load("Sprite/Item/" 
-				+ IMacro.ItemName[i]) as Sprite;
+			listItemSprite.Add(
+				GameObject.Find("ItemImage")
+				.transform.GetChild(i)
+				.GetComponent<SpriteRenderer>().sprite);
 		}
 
+
+		invenSortMenu = transform.Find("Dropdown").GetComponent<Dropdown>();
+		invenSortMenu.onValueChanged.AddListener(delegate 
+		{ 
+			invenDropdown(invenSortMenu); 
+		});
+		
 		//------------------------------------------------------------
 		// inven slot
 
-		list_invenSlot = new LinkedList<Inventory_Slot>();
+		list_invenSlot = new List<Inventory_Slot>();
 		slotPos = new Vector2[slotNum];
 		Inventory_Slot slot;
 
@@ -114,7 +112,7 @@ public class Inventory : MonoBehaviour
 
 			slot = slots_go.GetComponent<Inventory_Slot>();
 			slot.init(InventorySlotType.Nomal, i);
-			list_invenSlot.AddLast(slot);
+			list_invenSlot.Add(slot);
 		}
 
 		inventoryOpen = true;
@@ -124,7 +122,8 @@ public class Inventory : MonoBehaviour
 
 		//------------------------------------------------------------
 		// quick slot
-		list_quickSlot = new LinkedList<Inventory_Slot>();
+
+		list_quickSlot = new List<Inventory_Slot>();
 		GameObject quick_go = UIManager.instance.canvasUI.transform.Find("QuickSlots").gameObject;
 		//slotBasePosition.Set(-(140 * 2 + 50 * 1.5f), 0);
 		slotBasePosition.Set(-(140 * 2), 0);
@@ -138,32 +137,15 @@ public class Inventory : MonoBehaviour
 
 			slot = slots_go.GetComponent<Inventory_Slot>();
 			slot.init(InventorySlotType.Quick,i);
-			list_quickSlot.AddLast(slot);
+			list_quickSlot.Add(slot);
 		}
-
-		//------------------------------------------------------------
-		// mouse click
-
-		mci = new InvenClickItem();
-		mci.clickDt = 0;
-		mci.clickSlot = null;
-		GameObject g = new GameObject();
-		g.transform.position = new Vector3(-100, -100, -200); // 마우스 클릭한 아이템 포지션
-		g.transform.SetParent(UIManager.instance.canvasUI.transform);
-		g.name = "InvectoryClickItem";
-		mci.clickImg = g.AddComponent<Image>();
-		mci.clickImg.color = IMacro.color_NoneAlpha;
-		Vector2 vZero = Vector2.zero;
-		mci.clickImg.rectTransform.anchorMin = vZero;
-		mci.clickImg.rectTransform.anchorMax = vZero;
 
 		transform.SetParent(UIManager.instance.canvasUI.transform);
 		transform.SetAsLastSibling();
 		quick_go.transform.SetAsLastSibling();
-		g.transform.SetAsLastSibling();
 	}
 
-
+	
 	private void Update()
 	{
 #if true //test
@@ -179,29 +161,74 @@ public class Inventory : MonoBehaviour
 			return;
 
 		invenItemClick();
-		invenScroll();
+		invenScrollMouse();
 	}
 
 	//--------------------------------------------------------------------------------
 
-	public void invenActiveScroll(float val)
+	public void invenActiveScrollbar(float val)
 	{
 		float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
-		invenLimit.y =  n * val;
-		if (invenLimit.y < 0)
+		invenPosLimit.y =  n * val;
+		if (invenPosLimit.y < 0)
 		{
-			invenLimit.y = 0;
+			invenPosLimit.y = 0;
 		}
-		else if (invenLimit.y >= n)
+		else if (invenPosLimit.y >= n)
 		{
-			invenLimit.y = n;
+			invenPosLimit.y = n;
 		}
 
-		int nn = 0;
-		foreach (Inventory_Slot slot in list_invenSlot)
+		int nn = list_invenSlot.Count;
+		for (int i = 0; i < nn; i++) 
 		{
-			slot.GetComponent<RectTransform>().anchoredPosition = 
-				slotPos[nn++] + invenLimit;
+			list_invenSlot[i].GetComponent<RectTransform>().anchoredPosition =
+				slotPos[i] + invenPosLimit;
+		}
+	}
+
+	private void invenScrollMouse()
+	{
+		if (UIMouse.instance.invenSlotClick != null)
+			return;
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			Vector2 contain = maskRectf.InverseTransformPoint(Input.mousePosition);
+			if (maskRectf.rect.Contains(contain))
+			{
+				dragInven = true;
+				prevMousePos.Set(0, Input.mousePosition.y);
+			}
+		}
+		else if (Input.GetMouseButton(0))
+		{
+			if (dragInven)
+			{
+				invenPosLimit.y += (Input.mousePosition.y - prevMousePos.y) / UIManager.instance.canvasUI.transform.localScale.y;
+				float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
+				if (invenPosLimit.y < 0)
+				{
+					invenPosLimit.y = 0;
+				}
+				else if (invenPosLimit.y >= n)
+				{
+					invenPosLimit.y = n;
+				}
+
+				int nn = list_invenSlot.Count;
+				for (int i = 0; i < nn; i++)
+				{
+					list_invenSlot[i].GetComponent<RectTransform>().anchoredPosition =
+						slotPos[i] + invenPosLimit;
+				}
+				prevMousePos = Input.mousePosition;
+			}
+		}
+
+		else if (Input.GetMouseButtonUp(0))
+		{
+			dragInven = false;
 		}
 	}
 
@@ -245,76 +272,80 @@ public class Inventory : MonoBehaviour
 
 	private void invenItemClick()
 	{
+		int i;
 		if (Input.GetMouseButtonDown(0))
 		{
 			Vector2 contain;
 			// 인벤슬롯 검사
-			foreach (Inventory_Slot slot in list_invenSlot)
+			int n = list_invenSlot.Count;
+			for (i = 0; i < n; i++) 
 			{
+				Inventory_Slot slot = list_invenSlot[i];
 				if (slot.item == null)
 					continue;
 				contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
 				if (slot.rectf.rect.Contains(contain))
 				{
-					mci.clickSlot = slot;
+					//mci.clickSlot = slot;
+					UIMouse.instance.clickInvenItem(slot);
 					break;
 				}
 			}
 
 			// 퀵슬롯 검사
-			foreach (Inventory_Slot slot in list_quickSlot)
+			n = list_quickSlot.Count;
+			for (i = 0; i < n; i++) 
 			{
+				Inventory_Slot slot = list_quickSlot[i];
 				if (slot.item == null)
 					continue;
 				contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
 				if (slot.rectf.rect.Contains(contain))
 				{
-					mci.clickSlot = slot;
+					//mci.clickSlot = slot;
+					UIMouse.instance.clickInvenItem(slot);
+
 					break;
 				}
 			}
 		}
 		else if (Input.GetMouseButton(0))
 		{
-			if (mci.clickSlot != null)
+			if (UIMouse.instance.invenSlotClick != null)
 			{
-				mci.clickDt += Time.deltaTime;
-				if (mci.clickDt > InvenClickItem._clickDt)
+				clickDt += Time.deltaTime;
+				if (clickDt > _clickDt)
 				{
-					if (mci.clickImg.sprite == null)
+					if (UIMouse.instance.imgClick.sprite == null)
 					{
-						mci.clickImg.sprite = mci.clickSlot.itemImg.sprite;
-						mci.clickImg.color = IMacro.color_White;
-						mci.clickSlot.itemImg.color = IMacro.color_White * 0.5f;
+						UIMouse.instance.imgClick.sprite = UIMouse.instance.invenSlotClick.itemImg.sprite;
+						UIMouse.instance.imgClick.color = IMacro.color_White;
+						UIMouse.instance.invenSlotClick.itemImg.color = IMacro.color_White * 0.5f;
 					}
-
-					Vector2 view = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-					Vector2 mv = view
-						* UIManager.instance.canvasScaler.referenceResolution;
-
-					mci.clickImg.rectTransform.anchoredPosition = mv;
 				}
 			}
 		}
 		else if (Input.GetMouseButtonUp(0))
 		{
-			if (mci.clickSlot != null)
+			if (UIMouse.instance.invenSlotClick != null)
 			{
-				if (mci.clickDt < InvenClickItem._clickDt)
+				if (clickDt < _clickDt)
 				{
-					mci.clickSlot.useItem();
+					//mci.clickSlot.useItem();
+					UIMouse.instance.invenSlotClick.useItem();
+
 				}
 				else
 				{
 					// 인벤슬롯 검사
-					if (mci.clickSlot.type == InventorySlotType.Nomal)
+					if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Nomal)
 					{
 						foreach (Inventory_Slot slot in list_invenSlot)
 						{
 							Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
 							if (slot.rectf.rect.Contains(contain))
 							{
-								slot.changeSlot(mci.clickSlot);
+								slot.changeSlot(UIMouse.instance.invenSlotClick);
 								break;
 							}
 						}
@@ -327,24 +358,24 @@ public class Inventory : MonoBehaviour
 						Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
 						if (slot.rectf.rect.Contains(contain))
 						{
-							if (mci.clickSlot.type == InventorySlotType.Nomal)
+							if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Nomal)
 							{
 								foreach (Inventory_Slot s in list_quickSlot)
 								{
 									if (slot == s)
 										continue;
 
-									if (s.item == mci.clickSlot.item)
+									if (s.item == UIMouse.instance.invenSlotClick.item)
 									{
 										s.removeItemQuickSlot();
 										break;
 									}
 								}
 
-								slot.addItemQuickSlot(mci.clickSlot);
+								slot.addItemQuickSlot(UIMouse.instance.invenSlotClick);
 							}
-							else if (mci.clickSlot.type == InventorySlotType.Quick)
-								slot.changeSlot(mci.clickSlot);
+							else if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Quick)
+								slot.changeSlot(UIMouse.instance.invenSlotClick);
 
 							check = false;
 							break;
@@ -355,7 +386,7 @@ public class Inventory : MonoBehaviour
 					{
 						foreach (Inventory_Slot slot in list_quickSlot)
 						{
-							if (slot == mci.clickSlot)
+							if (slot == UIMouse.instance.invenSlotClick)
 							{
 								slot.removeItemQuickSlot();
 								break;
@@ -365,54 +396,10 @@ public class Inventory : MonoBehaviour
 				}
 			}
 
-			mci.init();
+			clickDt = 0;
+			UIMouse.instance.declickInvenItem();
 		}
 	}
-
-	private void invenScroll()
-	{
-		if (mci.clickSlot != null)
-			return;
-
-		if (Input.GetMouseButtonDown(0))
-		{
-			Vector2 contain = maskRectf.InverseTransformPoint(Input.mousePosition);
-			if (maskRectf.rect.Contains(contain))
-			{
-				dragInven = true;
-				prevMousePos.Set(0, Input.mousePosition.y);
-			}
-		}
-		else if (Input.GetMouseButton(0))
-		{
-			if (dragInven)
-			{
-				invenLimit.y += (Input.mousePosition.y - prevMousePos.y) / UIManager.instance.canvasUI.transform.localScale.y;
-				float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
-				if (invenLimit.y < 0)
-				{
-					invenLimit.y = 0;
-				}
-				else if (invenLimit.y >= n)
-				{
-					invenLimit.y = n;
-				}
-
-				int nn = 0;
-				foreach (Inventory_Slot slot in list_invenSlot)
-				{
-					slot.GetComponent<RectTransform>().anchoredPosition = slotPos[nn++] + invenLimit;
-				}
-				prevMousePos = Input.mousePosition;
-			}
-		}
-		else if (Input.GetMouseButtonUp(0))
-		{
-			dragInven = false;
-		}
-	}
-
-	//
 
 	public void addListItem(Item item)
 	{
@@ -425,6 +412,10 @@ public class Inventory : MonoBehaviour
 			if (slot.item.type == item.type)
 			{
 				slot.addItemNum(1);
+				if(slot.connectSlot)
+				{
+					slot.connectSlot.addItemNum(1);
+				}
 				return;
 			}
 		}
@@ -440,8 +431,71 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
-	public void invenUpdate()
+	public void invenDropdown(Dropdown dropdown)
 	{
+		int val = dropdown.value;
+		
+		switch (val)
+		{
+			case 0: // order by
+				{
+					break;
+				}
+			case 1: // name 
+				{
+					//list_Item sort
+					list_Item.Sort(invenListItemSortName);
 
+					/*				 */
+					for (int i = 0; i < list_Item.Count; i++)
+						print(list_Item[i] + "  /  " + i);
+					//list_invenSlot reset
+					foreach (Inventory_Slot slot in list_invenSlot)
+					{
+						if (slot.item)
+							slot.clear();
+					}
+
+					for (int i = 0; i < list_Item.Count; i++) 
+						list_invenSlot[i].addItemInvenSlot(list_Item[i]);
+					break;
+				}
+			case 2: // amount
+				{
+					break;
+				}
+		}
+	}
+
+	private int invenListItemSortName(Item A, Item B)
+	{
+		int a = A.strName[0];
+		int b = B.strName[0];
+
+		if (a < 65 || a > 122) print("sort error item name out of range [a]");
+		if (b < 65 || b > 122) print("sort error item name out of range [b]");
+
+		if (a < 91)	a += 32;
+		if (b < 91)	b += 32;
+
+		if (a > b)		return 1;
+		else if (a < b)	return -1;
+		else			return 0;
+	}
+
+	private int invenListItemSortAmount(Item A, Item B)
+	{
+		if (A.strName[0] > B.strName[0])
+		{
+			return 1;
+		}
+		else if (A.strName[0] < B.strName[0])
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 }
