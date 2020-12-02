@@ -35,11 +35,8 @@ public class UIManager : MonoBehaviour
 			instance = this;
 		else if (instance != null && instance != this)
 			Destroy(gameObject);
-		DontDestroyOnLoad(gameObject);
+		//DontDestroyOnLoad(gameObject);
 
-		//
-		// PlayTime, PlayerHp, Gold, Menu, Minimap
-		//createUItransformData(5);
 
 		canvasUI = GameObject.Find("UI Manager").
 			transform.Find("Canvas_UI").GetComponent<Canvas>();

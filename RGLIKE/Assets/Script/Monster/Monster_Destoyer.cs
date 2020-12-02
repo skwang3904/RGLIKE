@@ -131,10 +131,6 @@ public class Monster_Destoyer : Monster
 				{
 					break;
 				}
-			case EntityState.dead:
-				{
-					break;
-				}
 		}
 	}
 

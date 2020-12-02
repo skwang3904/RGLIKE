@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
 			instance = this;
 		else if (instance != this)
 			Destroy(gameObject);
-		DontDestroyOnLoad(gameObject);
+		//DontDestroyOnLoad(gameObject);
 
         LevelData ld = LevelData.instance;
         if(SaveLoad.isNewGame)
@@ -239,6 +239,19 @@ public class GameManager : MonoBehaviour
         v = player.transform.position + new Vector3(2, -2, 0);
         g.GetComponent<MapObject>().initialize(player.mapNumber, v);
 
+
+        for (int i = 0; i < maps.Length; i++) 
+		{
+            if (maps[i] == null)
+                continue;
+
+            if(maps[i].state == MapState.boss)
+			{
+                g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_NextDoor")) as GameObject;
+                g.GetComponent<MapObject>().initialize(i, maps[i].transform.position);
+                break;
+            }
+		}
 #endif
     }
 
