@@ -102,13 +102,13 @@ public class UIManager : MonoBehaviour
 
 		//
 		pauseBtn = canvasUI.transform.Find("PauseButton").GetComponent<Button>();
-		pauseBtn.onClick.AddListener(() => pauseGame());
+		pauseBtn.onClick.AddListener(pauseGame);
 		pauseBG = canvasUI.transform.Find("PauseBG").gameObject;
 		Transform t = pauseBG.transform.Find("PauseMenu");
 		t.transform.Find("Resume").GetComponent<Button>()
-			.onClick.AddListener(() => pauseGame());
+			.onClick.AddListener(pauseGame);
 		t.transform.Find("Exit").GetComponent<Button>()
-			.onClick.AddListener(() => exitGame());
+			.onClick.AddListener(exitGame);
 		isPause = false;
 		pauseFadeDt = 0;
 		_pauseFadeDt = 0.2f;
@@ -126,7 +126,8 @@ public class UIManager : MonoBehaviour
 	{
 		text_PlayTime.text = "Play Time [ "
 			+ (int)(g.totalPlayTime / 60) + " : "
-			+ (int)(g.totalPlayTime % 60) + " ]";
+			+ (int)(g.totalPlayTime % 60) + " ]\n"
+			+ "stage : " + LevelData.instance.mapData.stage;
 
 		text_PlayerHp.text = "HP : "
 			+ player.hp + " / " + player._hp;

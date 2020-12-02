@@ -70,9 +70,19 @@ public class GameManager : MonoBehaviour
         if (player.state == EntityState.dead &&
             isGameOver == false)
             StartCoroutine("gameOverFadeOut");
-            
+
+        if (LevelData.instance.isNextLevelLoad)
+            StartCoroutine("nextLevelFadeOut");
+
         totalPlayTime += Time.deltaTime;
         currStageTime += Time.deltaTime;
+    }
+
+    public void createNextLevel()
+	{
+        createMap();
+        createPlayer();
+        createMonster();
     }
 
     public void addScore(int hp)
@@ -80,6 +90,29 @@ public class GameManager : MonoBehaviour
         currStageScore += hp;
         currStageScore += 500 - (int)currStageTime;
         totalScore += currStageScore;
+    }
+
+    private IEnumerator nextLevelFadeOut()
+	{
+        LevelData ld = LevelData.instance;
+        ld.isNextLevelLoad = false;
+        ld.fadeDt = 0;
+        Color c = Color.black;
+
+        while (true)
+        {
+            ld.fadeDt += Time.deltaTime;
+            if (ld.fadeDt > ld._fadeDt)
+                ld.fadeDt = ld._fadeDt;
+
+            c.a = Mathf.Lerp(1, 0, ld.fadeDt / ld._fadeDt);
+            ld.imgFadeInOut.color = c;
+
+            if (ld.fadeDt == ld._fadeDt)
+                break;
+
+            yield return null;
+        }
     }
 
     private IEnumerator gameOverFadeOut()
@@ -109,7 +142,11 @@ public class GameManager : MonoBehaviour
 		{
             for (i = 0; i < maps.Length; i++) 
 			{
-                Destroy(maps[i]);
+                if (maps[i] == null)
+                    continue;
+
+                Destroy(maps[i].gameObject);
+                maps[i].transform.SetParent(null);
                 maps[i] = null;
             }
             maps = null;
@@ -130,7 +167,10 @@ public class GameManager : MonoBehaviour
         for (i = 0; i < num; i++)
 		{
             if (!md.maps[i])
+			{
+                maps[i] = null;
                 continue;
+			}
 
             name = IMacro.MapName[(int)md.mapName[i]];
             g = Instantiate(Resources.Load("Prefabs/Map/" + name)) as GameObject;
@@ -157,9 +197,16 @@ public class GameManager : MonoBehaviour
         LevelData ld = LevelData.instance;
         int num = ld.playerData.mapNumber;
 
-        GameObject g = Instantiate(Resources.Load("Prefabs/Player/Player")) as GameObject;
-        g.transform.position = maps[num].transform.Find("PlayerSpawn").position;
-        player = g.GetComponent<Player>();
+        if (player == null)
+        {
+            GameObject g = Instantiate(Resources.Load("Prefabs/Player/Player")) as GameObject;
+            g.transform.position = maps[num].transform.Find("PlayerSpawn").position;
+            player = g.GetComponent<Player>();
+        }
+        else
+		{
+            player.transform.position = maps[num].transform.Find("PlayerSpawn").position;
+		}
         player.initialize(0);
         
         vCameraCollider = GameObject.Find("vCameraCollider");
@@ -199,9 +246,21 @@ public class GameManager : MonoBehaviour
     // createMonster
     private void createMonster()
 	{
+        int i, j;
+        if (monsters != null) 
+		{
+            for (i = 0; i < monsters.Length; i++) 
+			{
+                Destroy(monsters[i].gameObject);
+                monsters[i].transform.SetParent(null);
+                monsters[i] = null;
+            }
+            monsters = null;
+        }
+
         LevelData ld = LevelData.instance;
         int total = ld.mapData.mapTotalNum;
-        int i, j, sum = 0;
+        int sum = 0;
 
         for (i = 0; i < total; i++)
 		{
@@ -298,7 +357,6 @@ public class GameManager : MonoBehaviour
             return;
 
         nextMapNumber = mapNum;
-        passMapDt = 0;
 
         Map curr = maps[currMapNumber];
         Map next = maps[nextMapNumber];
@@ -340,16 +398,13 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator passMap_Coroutine()
 	{
-        while(true)
+        passMapDt = 0;
+
+        while (true)
 		{
             passMapDt += Time.deltaTime;
             if (passMapDt >= _passMapDt)
-            {
-                currMapNumber = nextMapNumber;
-                player.mapNumber = currMapNumber;
                 passMapDt = _passMapDt;
-                break;
-            }
 
             float dt = passMapDt / _passMapDt;
 
@@ -360,6 +415,13 @@ public class GameManager : MonoBehaviour
 
             BoxCollider2D box = vCameraCollider.GetComponent<BoxCollider2D>();
             box.size = Vector2.Lerp(currMapSize, nextMapSize, dt);
+
+            if(passMapDt == _passMapDt)
+			{
+                currMapNumber = nextMapNumber;
+                player.mapNumber = currMapNumber;
+                break;
+            }
 
             yield return null;
 		}

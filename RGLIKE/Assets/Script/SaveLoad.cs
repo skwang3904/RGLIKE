@@ -9,7 +9,7 @@ public static class SaveLoad
 	private const string strPlayerData = "/playerData.sav";
 	private const string strMonsterData = "/monsterData.sav";
 
-	public static bool isNewGame = false; // set in intro
+	public static bool isNewGame = true; // set in intro
 
 	public static void save()
 	{

@@ -47,7 +47,17 @@ public class PlayerData
 
 	public void nextPlayer(Player p)
 	{
-		mapNumber = p.mapNumber;
+		while (true)
+		{
+			MapData md = LevelData.instance.mapData;
+			int ran = UnityEngine.Random.Range(0, md.mapTotalNum);
+			if (md.maps[ran] && md.mapStates[ran] == MapState.nomal)
+			{
+				mapNumber = ran;
+				break;
+			}
+		}
+		//mapNumber = p.mapNumber;
 		hp = p.hp;
 		_hp = p._hp;
 		dmg = p.dmg;

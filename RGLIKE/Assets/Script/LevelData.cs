@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelData
 {
@@ -15,13 +16,23 @@ public class LevelData
 		}
 	}
 
+	public Image imgFadeInOut;
+	public float fadeDt = 0f;
+	public float _fadeDt = 2.0f;
+	public bool isNextLevelLoad;
+
 	public MapData mapData;
     public PlayerData playerData;
 	public MonsterData monsterData;
 
 	public void startLevel()
 	{
-        if (mapData == null)
+		if(imgFadeInOut == null)
+			imgFadeInOut = GameObject.Find("FadeInOut").GetComponent<Image>();
+
+		imgFadeInOut.color = Color.black;
+
+		if (mapData == null)
         { // 첫 시작
             mapData = new MapData();
             playerData = new PlayerData();
@@ -32,17 +43,21 @@ public class LevelData
 			mapData.nextMap();
 			playerData.nextPlayer(GameManager.instance.player);
 			monsterData.nextMonster();
+
+			GameManager.instance.createNextLevel();
 		}
-
+		
         SaveLoad.save();
-    }
 
-    public void loadLevel()
+		isNextLevelLoad = true;
+	}
+
+	public void loadLevel()
 	{
-		// load
+		// load -> 로드 후 세이브
 		SaveLoad.load();
 	}
 
-
+	
 
 }
