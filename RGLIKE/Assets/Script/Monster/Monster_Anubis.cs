@@ -79,6 +79,8 @@ public class Monster_Anubis : Monster
 
 	private void FixedUpdate()
 	{
+		float dt = livingDeltaTime(timeScale);
+
 		if (mapNumber != player.mapNumber)
 			return;
 		if (state == EntityState.dead ||
@@ -96,13 +98,13 @@ public class Monster_Anubis : Monster
 						if(moveDt < _moveDt)
 						{
 							rigid.MovePosition((Vector2)transform.position
-								+ v2Random * moveSpeed * Time.deltaTime);
+								+ v2Random * moveSpeed * dt);
 						}
 					}
 					else
 					{
 						rigid.MovePosition((Vector2)transform.position
-								+ v2target * moveSpeed * Time.deltaTime);
+								+ v2target * moveSpeed * dt);
 					}
 
 					break;

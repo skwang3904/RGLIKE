@@ -19,14 +19,11 @@ public class NonLivingEntity : MonoBehaviour
 
 	protected virtual void Awake()
 	{
+		player = Player.instance;
+
 		animator = GetComponent<Animator>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		touchBox = GetComponent<BoxCollider2D>();
-	}
-
-	private void Start()
-	{
-		player = GameManager.instance.player;
 	}
 
 	private void setAppearTrue() { isAppear = true; }

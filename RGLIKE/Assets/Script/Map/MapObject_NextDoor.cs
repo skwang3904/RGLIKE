@@ -37,7 +37,7 @@ public class MapObject_NextDoor : MapObject
 		StartCoroutine("crtStartNextLevel");
 	}
 
-	private void crtStartNextLevel()
+	private IEnumerator crtStartNextLevel()
 	{
 		Color c = Color.clear;
 		LevelData ld =  LevelData.instance;
@@ -49,13 +49,15 @@ public class MapObject_NextDoor : MapObject
 				ld.fadeDt = ld._fadeDt;
 
 			c.a = Mathf.Lerp(0, 1, ld.fadeDt / ld._fadeDt);
-			LevelData.instance.imgFadeInOut.color = c;
+			ld.imgFadeInOut.color = c;
 
 			if(ld.fadeDt == ld._fadeDt)
 			{
 				LevelData.instance.startLevel();
 				break;
 			}
+
+			yield return null;
 		}
 	}
 }

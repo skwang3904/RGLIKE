@@ -6,10 +6,14 @@ using Cinemachine;
 
 public class Player : LivingEntity, IDamageable, IInitialize
 {
+    public static Player instance;
+
+    private List<KeyCode> list_operationKey;
+
     private ParticleSystem particle;
     // controller
     private PlayerController pctrl;
-    private float aniX, aniY;
+    private Vector2 aniMovement;
 
     //attacks
     private BoxCollider2D attackBox;
@@ -19,14 +23,23 @@ public class Player : LivingEntity, IDamageable, IInitialize
     private int nextPattenIndex;
     private bool nextPattern;
 
+    private float knockbackDistance;
+
     protected override void Awake()
 	{
-        particle = GetComponent<ParticleSystem>();
+        if (instance == null)
+            instance = this;
+        else if (instance != null && instance != this)
+            Destroy(gameObject);
+
         base.Awake();
 
+        list_operationKey = new List<KeyCode>();
+        addOperationKey();
+
+        particle = GetComponent<ParticleSystem>();
         pctrl = GetComponent<PlayerController>();
-        aniX = 0; 
-        aniY = 0;
+        aniMovement = Vector2.zero;
 
         attackBox = GetComponents<BoxCollider2D>()[1];
         attackBox.enabled = false;
@@ -37,89 +50,30 @@ public class Player : LivingEntity, IDamageable, IInitialize
         nextPattern = false;
     }
 
-    void Update()
+    private void Update()
     {
         if (state == EntityState.dead)
             return;
 
-        // move 입력
-        aniX = pctrl.movement.x;
-        aniY = pctrl.movement.y;
-        if (aniY != 0f)
-            aniX = 0;
-        animator.SetFloat("moveX", aniX);
-        animator.SetFloat("moveY", aniY);
-        animator.SetBool("moving", pctrl.moving);
+        setAnimator();
 
-        if(aniY != 0) // #issue 히트박스 회전부분 개선필요
-		{
-            if (aniY > 0)   attackBoxOffset.Set(0, 0.5f);
-            else            attackBoxOffset.Set(0, -1);
-            attackBoxSize.Set(3, 1.5f);
-		}
-        else if(aniX != 0)
-		{
-            if (aniX > 0)   attackBoxOffset.Set(1, 0);
-            else            attackBoxOffset.Set(-1, 0);
-            attackBoxSize.Set(1.5f, 3);
-        }
+        mainLogic();
 
-        switch (state)
-		{
-            case EntityState.idle:
-            case EntityState.move:
-                {
-                    if (pctrl.attacking)
-                    {
-                        state = EntityState.attack;
-                        attackBox.enabled = true;
-                        nextPattenIndex = 0;
-                        rotateAttackBox();
-                        setAttackPatten();
-                    }
-                    break;
-                }
-            case EntityState.attack:
-			    {
-                    if(nextPattern)
-					{
-                        if (pctrl.attacking)
-                        {
-                            nextPattern = false;
-                            nextPattenIndex++;
-                        }
-                    }
-                    break;
-			    }
-        }
-
-        {
-            // test
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                if (state != EntityState.dead)
-                {
-                    //onDamage(10000);
-                }
-            }
-
-            if(Input.GetKeyDown(KeyCode.Tab))
-			{
-                UIManager.instance.miniMapSizing();
-
-            }
-
-            if (Input.GetKeyDown(KeyCode.I))
-            {
-                Inventory.instance.inventoryOpenClose();
-            }
-        }
+        getOperationKeys();
     }
 
 	private void FixedUpdate()
 	{
-        rigid.MovePosition((Vector2)transform.position 
-            + (pctrl.movement * moveSpeed * Time.deltaTime));
+        float dt = livingDeltaTime(timeScale);
+
+#if true
+        rigid.MovePosition((Vector2)transform.position
+            + pctrl.movement * moveSpeed * dt);
+
+#else // move test
+        rigid.velocity = (pctrl.movement * moveSpeed * dt
+            * (pctrl.moving ? 1 : 0));
+#endif
     }
 
 	private void OnTriggerEnter2D(Collider2D collision)
@@ -151,6 +105,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
             return;
 
         particle.Play();
+
         hp -= damage;
         if (hp < 0)
 		{
@@ -160,7 +115,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
             deadMethod?.Invoke();
         }
-
 	}
 
     public void initialize(int mapNum)
@@ -179,17 +133,119 @@ public class Player : LivingEntity, IDamageable, IInitialize
     }
 
     //---------------------------------------------------
-    //---------------------------------------------------
-    // State function
-    private void setStateIdle()
+    // create -> awake에서 호출할 함수
+    public void create(Vector2 position)
+	{ 
+        // 레벨 시작 시 호출
+        transform.position = position;
+
+        initialize(0);
+    }
+
+    private void addOperationKey()
 	{
-        state = EntityState.idle;
-	}
+        list_operationKey.Add(KeyCode.Escape);
+        list_operationKey.Add(KeyCode.Tab);
+        list_operationKey.Add(KeyCode.I);
+    }
+
+    //---------------------------------------------------
+    // Main Logic
+    private void setAnimator()
+    {
+        // move 입력
+        aniMovement = pctrl.movement;
+
+        if (aniMovement.y != 0f)
+            aniMovement.x = 0;
+        animator.SetFloat("moveX", aniMovement.x);
+        animator.SetFloat("moveY", aniMovement.y);
+        animator.SetBool("moving", pctrl.moving);
+    }
+
+    private void mainLogic()
+	{
+        switch (state)
+        {
+            case EntityState.idle:
+            case EntityState.move:
+                {
+                    if (pctrl.attacking)
+                    {
+                        state = EntityState.attack;
+                        nextPattenIndex = 0;
+                        rotateAttackBox();
+                        setAttackPatten();
+                    }
+                    break;
+                }
+            case EntityState.attack:
+                {
+                    if (nextPattern)
+                    {
+                        if (pctrl.attacking)
+                        {
+                            nextPattern = false;
+                            nextPattenIndex++;
+                        }
+                    }
+                    break;
+                }
+            default:
+                print("pley state setting error");
+                break;
+        }
+    }
+
+    private void getOperationKeys()
+    {
+        // test
+        foreach(KeyCode key in list_operationKey)
+		{
+            if (Input.GetKeyDown(key))
+            {
+                switch (key)
+                {
+                    case KeyCode.Escape:
+                        {
+                            break;
+                        }
+                    case KeyCode.Tab:
+                        {
+                            UIManager.instance.miniMapSizing();
+                            break;
+                        }
+                    case KeyCode.I:
+                        {
+                            Inventory.instance.inventoryOpenClose();
+                            break;
+                        }
+                    default:
+                        print("player key list : not added keys");
+                        break;
+                }
+            }
+		}
+    }
 
     //---------------------------------------------------
     // Attack function
     private void rotateAttackBox()
-	{
+    {
+        // #issue 히트박스 회전부분 개선필요
+        if (aniMovement.y != 0)
+        {
+            if (aniMovement.y > 0) attackBoxOffset.Set(0, 0.5f);
+            else attackBoxOffset.Set(0, -1);
+            attackBoxSize.Set(3, 1.5f);
+        }
+        else if (aniMovement.x != 0)
+        {
+            if (aniMovement.x > 0) attackBoxOffset.Set(1, 0);
+            else attackBoxOffset.Set(-1, 0);
+            attackBoxSize.Set(1.5f, 3);
+        }
+
         attackBox.offset = attackBoxOffset;
         attackBox.size = attackBoxSize;
     }

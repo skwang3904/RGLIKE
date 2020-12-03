@@ -6,7 +6,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 {
 	// 목표 있을때 목표로 이동, 
 	// 목표 없을때 랜덤이동
-	protected Player player;
+	public Player player { get; private set; }
 	protected Player target;
 	protected Vector2 v2target;
 	protected float distanceToPlayer;
@@ -27,7 +27,9 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 	protected override void Awake()
 	{
 		base.Awake();
-		player = GameManager.instance.player;
+
+		player = Player.instance;
+
 		deadMethod += dropItemWhenDead;
 	}
 
@@ -78,7 +80,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 	{
 		state = EntityState.idle;
 		mapNumber = mapNum;
-		hp = _hp = 30;
+		hp = _hp = 100;
 		dmg = _dmg = 5;
 		attackDt = _attackDt = 1f;
 		moveSpeed = 3f;
@@ -156,16 +158,6 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 	{
 		isHurt = false;
 		animator.SetBool("isHurt", isHurt);
-	}
-
-	private void stateToIdle()
-	{
-		state = EntityState.idle;
-	}
-
-	private void stateToWalk()
-	{
-		state = EntityState.move;
 	}
 
 	//---------------------------------------------------------------

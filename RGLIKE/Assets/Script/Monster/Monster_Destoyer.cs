@@ -84,6 +84,8 @@ public class Monster_Destoyer : Monster
 
 	private void FixedUpdate()
 	{
+		float dt = livingDeltaTime(timeScale);
+
 		if (mapNumber != player.mapNumber)
 			return;
 		if (state == EntityState.dead ||
@@ -100,13 +102,13 @@ public class Monster_Destoyer : Monster
 						if (moveDt < _moveDt)
 						{
 							rigid.MovePosition((Vector2)transform.position
-								+ v2Random * moveSpeed * Time.deltaTime);
+								+ v2Random * moveSpeed * dt);
 						}
 					}
 					else
 					{
 						rigid.MovePosition((Vector2)transform.position
-								+ v2target * moveSpeed * Time.deltaTime);
+								+ v2target * moveSpeed * dt);
 					}
 
 					break;
@@ -121,7 +123,7 @@ public class Monster_Destoyer : Monster
 						case 3:
 							{
 								rigid.MovePosition((Vector2)transform.position
-									+ attack3_direction * attack3_chargeSpeed * Time.deltaTime);
+									+ attack3_direction * attack3_chargeSpeed * dt);
 								break;
 							}
 					}

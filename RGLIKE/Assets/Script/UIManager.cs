@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
 {
 	public static UIManager instance = null;
 	private GameManager g;
-	private Player player;
+	public Player player { get; private set; }
 
 	public Canvas canvasUI { get; private set; }
 	public CanvasScaler canvasScaler { get; private set; }
@@ -113,7 +113,7 @@ public class UIManager : MonoBehaviour
 
 	private void Start()
 	{
-		player = GameManager.instance.player;
+		player = Player.instance;
 		g = GameManager.instance;
 
 		UIMouse.instance.transform.SetAsLastSibling();
@@ -206,7 +206,7 @@ public class UIManager : MonoBehaviour
 		int i;
 		int total = LevelData.instance.mapData.mapTotalNum;
 		int sqrt = LevelData.instance.mapData.mapTotalSqrt;
-		Map[] maps = GameManager.instance.maps;
+		Map[] maps = Map.instance;
 
 
 		float rx = canvasUI.transform.localScale.x; // (화면크기 / 캔버스크기)

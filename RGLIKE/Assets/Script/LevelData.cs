@@ -41,7 +41,7 @@ public class LevelData
         else
 		{ // 다음 레벨
 			mapData.nextMap();
-			playerData.nextPlayer(GameManager.instance.player);
+			playerData.nextPlayer(Player.instance);
 			monsterData.nextMonster();
 
 			GameManager.instance.createNextLevel();

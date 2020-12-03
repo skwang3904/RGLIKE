@@ -21,33 +21,27 @@ AnimationClip:
   - curve:
     - time: 0
       value: {fileID: 21300000, guid: 7586bca50ab761444ad62ba88dd3deb3, type: 3}
-    - time: 0.041666668
-      value: {fileID: 21300000, guid: 4fad968a5d339be4abf77858b175d208, type: 3}
-    - time: 0.083333336
-      value: {fileID: 21300000, guid: dea39a39252076d44984650d65ea4c9d, type: 3}
-    - time: 0.125
-      value: {fileID: 21300000, guid: b29913375b160544fb29b6872860c4f9, type: 3}
-    - time: 0.16666667
+    - time: 0.1
       value: {fileID: 21300000, guid: 7967bedf256e9a2409597560fde64f27, type: 3}
-    - time: 0.20833333
+    - time: 0.125
       value: {fileID: 21300000, guid: 6909989ba07eafa4b8ebb637af4bc0d7, type: 3}
-    - time: 0.25
+    - time: 0.15
       value: {fileID: 21300000, guid: 99638473a702acd408ff1ae5c60b276c, type: 3}
-    - time: 0.29166666
+    - time: 0.175
       value: {fileID: 21300000, guid: a043cf34d5e2d624d8244e8534c210fc, type: 3}
-    - time: 0.33333334
+    - time: 0.2
       value: {fileID: 21300000, guid: e703b57b699158e409eff3350097068f, type: 3}
-    - time: 0.375
+    - time: 0.225
       value: {fileID: 21300000, guid: 9ab320eaabc0bf64d98dbfe9e4981453, type: 3}
-    - time: 0.41666666
+    - time: 0.25
       value: {fileID: 21300000, guid: a45f39241ae0d6c408a962de3ca07b7e, type: 3}
-    - time: 0.45833334
+    - time: 0.275
       value: {fileID: 21300000, guid: 8d818015ce9ffcc43884eba7a2ecdde5, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
     script: {fileID: 0}
-  m_SampleRate: 24
+  m_SampleRate: 40
   m_WrapMode: 0
   m_Bounds:
     m_Center: {x: 0, y: 0, z: 0}
@@ -63,9 +57,6 @@ AnimationClip:
       isPPtrCurve: 1
     pptrCurveMapping:
     - {fileID: 21300000, guid: 7586bca50ab761444ad62ba88dd3deb3, type: 3}
-    - {fileID: 21300000, guid: 4fad968a5d339be4abf77858b175d208, type: 3}
-    - {fileID: 21300000, guid: dea39a39252076d44984650d65ea4c9d, type: 3}
-    - {fileID: 21300000, guid: b29913375b160544fb29b6872860c4f9, type: 3}
     - {fileID: 21300000, guid: 7967bedf256e9a2409597560fde64f27, type: 3}
     - {fileID: 21300000, guid: 6909989ba07eafa4b8ebb637af4bc0d7, type: 3}
     - {fileID: 21300000, guid: 99638473a702acd408ff1ae5c60b276c, type: 3}
@@ -79,7 +70,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.5
+    m_StopTime: 0.3
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -99,14 +90,14 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.25
+  - time: 0.15
     functionName: nextPattenTrue
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.5
+  - time: 0.3
     functionName: setAttackPatten
     data: 
     objectReferenceParameter: {fileID: 0}

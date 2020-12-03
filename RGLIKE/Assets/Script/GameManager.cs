@@ -19,10 +19,7 @@ public class GameManager : MonoBehaviour
     private float gameOverDt;
     private const float _gameOverDt = 1f;
 
-    // Map
     public Map[] maps { get; private set; }
-
-    // Player
     public Player player { get; private set; }
 
     //virtual camera
@@ -138,19 +135,19 @@ public class GameManager : MonoBehaviour
     private void createMap()
 	{
         int i;
-        if(maps != null)
+        if (Map.instance != null)
 		{
-            for (i = 0; i < maps.Length; i++) 
+            for (i = 0; i < Map.instance.Length; i++) 
 			{
-                if (maps[i] == null)
+                if (Map.instance[i] == null)
                     continue;
 
-                Destroy(maps[i].gameObject);
-                maps[i].transform.SetParent(null);
-                maps[i] = null;
+                Destroy(Map.instance[i].gameObject);
+                Map.instance[i].transform.SetParent(null);
+                Map.instance[i] = null;
             }
-            maps = null;
-		}
+            Map.instance = null;
+        }
 
         MapData md = LevelData.instance.mapData;
         int sqrt = md.mapTotalSqrt;
@@ -162,7 +159,9 @@ public class GameManager : MonoBehaviour
         float height = 0;
         Vector2 position = Vector2.zero;
 
-        maps = new Map[num];
+        //maps = new Map[num];
+        Map.instance = new Map[num];
+        maps = Map.instance;
 
         for (i = 0; i < num; i++)
 		{
@@ -197,18 +196,14 @@ public class GameManager : MonoBehaviour
         LevelData ld = LevelData.instance;
         int num = ld.playerData.mapNumber;
 
-        if (player == null)
-        {
-            GameObject g = Instantiate(Resources.Load("Prefabs/Player/Player")) as GameObject;
-            g.transform.position = maps[num].transform.Find("PlayerSpawn").position;
-            player = g.GetComponent<Player>();
-        }
-        else
+        if (Player.instance == null)
 		{
-            player.transform.position = maps[num].transform.Find("PlayerSpawn").position;
+            Instantiate(Resources.Load("Prefabs/Player/Player"));
+            player = Player.instance;
 		}
-        player.initialize(0);
-        
+
+        Player.instance.create(maps[num].transform.Find("PlayerSpawn").position);
+
         vCameraCollider = GameObject.Find("vCameraCollider");
         vCameraCollider.transform.position = maps[player.mapNumber].transform.position;
 

@@ -12,14 +12,13 @@ public class PlayerController : MonoBehaviour
 
 	private void Awake()
 	{
-        player = GetComponent<Player>();
-        
+        player = Player.instance;
         movement = Vector2.zero;
 	}
 
     void Update()
     {
-        if (Time.timeScale == 0f)
+        if (!LivingEntity.LivingTime)
             return;
 
         if (GameManager.instance.isPassMap())
@@ -34,23 +33,23 @@ public class PlayerController : MonoBehaviour
             allInputZero();
             return;
 		}
-
-        if(player.state == EntityState.attack)
-		{
-            movement.Set(0, 0);
-		}
-        else
+        movement.Set(0, 0);
+        if (player.state != EntityState.attack)
         {
-            //movement.Set(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            movement.x = Input.GetAxis("Horizontal");
-            movement.y = Input.GetAxis("Vertical");
+            movement.x = Input.GetAxisRaw("Horizontal");
+            movement.y = Input.GetAxisRaw("Vertical");
+            movement.Normalize();
         }
-        movement.Normalize();
         
         // #issue 방향 입력 유지되는것 수정
         moving = movement != Vector2.zero; 
 
         attacking = Input.GetButton("Fire1");
+        if (attacking)
+		{
+            moving = false;
+            movement.Set(0, 0);
+        }
     }
 
     private void allInputZero()

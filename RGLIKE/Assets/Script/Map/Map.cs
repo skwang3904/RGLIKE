@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Map : MonoBehaviour
 {
+	public static Map[] instance;
+
+	public Player player { get; private set; }
+
 	public SpriteRenderer spriteRenderer;
 
 	private GameObject[] doors; // 맵의 각 문 // 딱히 없어도될듯?
@@ -15,7 +19,6 @@ public class Map : MonoBehaviour
 	public MapState state;
 	public int mapNumber;
 
-	private Player player;
 	private Monster[] monsters; // 이 맵에 있는 몬스터
 
 	private void Awake()
@@ -80,7 +83,7 @@ public class Map : MonoBehaviour
 	private void Start()
 	{
 		int i, j = 0;
-		player = GameManager.instance.player;
+		player = Player.instance;
 
 		// 이 맵번호와 같은 맵번호를 가진 몬스터를 검사하여 문을 열거나 닫음
 		int mNum = transform.Find("MonsterSpawn").childCount;

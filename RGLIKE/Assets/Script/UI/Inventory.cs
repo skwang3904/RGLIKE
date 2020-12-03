@@ -145,7 +145,6 @@ public class Inventory : MonoBehaviour
 		quick_go.transform.SetAsLastSibling();
 	}
 
-	
 	private void Update()
 	{
 #if true //test
@@ -234,17 +233,17 @@ public class Inventory : MonoBehaviour
 
 	public void inventoryOpenClose()
 	{
-		inventoryOpen = !inventoryOpen;
-		if (invenOpenDt == _invenOpenDt)
-			invenOpenDt = 0;
-		else
-			invenOpenDt = _invenOpenDt - invenOpenDt;
 		StartCoroutine("invenOpen");
 	}
 
 	private IEnumerator invenOpen()
 	{
-		while(true)
+		inventoryOpen = !inventoryOpen;
+		invenOpenDt = _invenOpenDt - invenOpenDt;
+
+		LivingEntity.EntityTime(false);
+
+		while (true)
 		{
 			invenOpenDt += Time.deltaTime;
 			if (invenOpenDt > _invenOpenDt)
@@ -262,7 +261,11 @@ public class Inventory : MonoBehaviour
 					invenOpenDt / _invenOpenDt);
 
 			if (invenOpenDt == _invenOpenDt)
+			{
+				if (!inventoryOpen)
+					LivingEntity.EntityTime(true);
 				break;
+			}
 			
 			yield return null;
 		}
