@@ -50,6 +50,7 @@ public class PlayerController : MonoBehaviour
             moving = false;
             movement.Set(0, 0);
         }
+        
     }
 
     private void allInputZero()

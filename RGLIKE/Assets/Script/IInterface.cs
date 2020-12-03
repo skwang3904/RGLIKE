@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IDamageable
 {
-	void onDamage(float damage);
+	void onDamage(LivingEntity entity);
 }
 
 public interface IInitialize

@@ -140,6 +140,7 @@ public class UIManager : MonoBehaviour
 	private void OnGUI()
 	{
 		drawMinimap();
+		drawMonsterHPbar();
 	}
 
 	private void pauseGame()
@@ -247,7 +248,7 @@ public class UIManager : MonoBehaviour
 	{
 		if (tex == null)
 			return;
-
+		
 		GUI.skin.box.normal.background = tex;
 		GUI.Box(rt, GUIContent.none);
 	}
@@ -259,5 +260,29 @@ public class UIManager : MonoBehaviour
 		tex.Apply();
 
 		return tex;
+	}
+
+	private void drawMonsterHPbar()
+	{
+		Transform t = GameObject.Find("Monsters").transform;
+		int count = t.childCount;
+		float hp, _hp;
+		Rect rt = new Rect();
+		LivingEntity entity;
+		Vector2 v;
+		for(int i=0; i<count;i++)
+		{
+			entity = t.GetChild(i).GetComponent<LivingEntity>();
+			hp = entity.hp;
+			_hp = entity._hp;
+
+			v = Camera.main.WorldToScreenPoint(entity.transform.position);
+			v.x -= 30;
+			v.y = Screen.height - v.y + 30;
+			rt.Set(v.x, v.y, 100, 100);
+			GUI.Label(rt, hp.ToString());
+			rt.x += + 30;
+			GUI.Label(rt, _hp.ToString());
+		}
 	}
 }

@@ -167,7 +167,7 @@ public class Map : MonoBehaviour
 			{
 				BoxCollider2D b = doorsCollider[i];
 
-				if (b.IsTouching(player.hitBox))
+				if (b.IsTouching(player.moveBox))
 				{
 					if (doorIndex[i] != 1)
 						continue;

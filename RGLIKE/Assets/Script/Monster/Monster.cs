@@ -35,7 +35,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 
 	//---------------------------------------------------------------
 	// interface
-	public virtual void onDamage(float damage)
+	public virtual void onDamage(LivingEntity entity)
 	{
 		if (state == EntityState.dead)
 			return;
@@ -45,7 +45,16 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 		animator.SetBool("isHurt", isHurt);
 		animator.SetTrigger("Hurt");
 
-		hp -= damage;
+		StartCoroutine("crtHurtEffect");
+
+		hp -= entity.dmg;
+		if(player.currAttackPattern() == 2)
+		{
+			Vector2 p = transform.position - entity.transform.position;
+			rigid.MovePosition((Vector2)transform.position 
+				+ player.knockbackMonster(p.normalized));
+		}
+
 		if (hp <= 0)
 		{
 			hp = 0;
@@ -94,6 +103,7 @@ public class Monster : LivingEntity, IDamageable, IInitialize
 	{
 		randMove(1, 2, 0, 1);
 	}
+
 	public void randMove(float moveMin, float moveMax, float stayMin, float stayMax)
 	{
 		moveDt = 0;

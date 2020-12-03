@@ -21,9 +21,9 @@ public class MapObject_Barrel : MapObject
 		hp = _hp = 2;
 	}
 
-	public override void onDamage(float damage)
+	public override void onDamage(LivingEntity entity)
 	{
-		base.onDamage(damage);
+		base.onDamage(entity);
 
 		animator.SetTrigger("Hurt");
 	}

@@ -81,7 +81,7 @@ public class Item : NonLivingEntity, IItem
 				{
 					// if use 
 					// setItemState(NonEntityState.Active);
-					if (touchBox.IsTouching(player.hitBox))
+					if (touchBox.IsTouching(player.moveBox))
 						setItemState(NonEntityState.Active);
 					break;
 				}

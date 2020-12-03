@@ -17,8 +17,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
     //attacks
     private BoxCollider2D attackBox;
-    private Vector2 attackBoxOffset;
-    private Vector2 attackBoxSize;
     private int currPattenIndex;
     private int nextPattenIndex;
     private bool nextPattern;
@@ -41,13 +39,13 @@ public class Player : LivingEntity, IDamageable, IInitialize
         pctrl = GetComponent<PlayerController>();
         aniMovement = Vector2.zero;
 
-        attackBox = GetComponents<BoxCollider2D>()[1];
+        attackBox = GetComponents<BoxCollider2D>()[0];
         attackBox.enabled = false;
-        attackBoxOffset = attackBox.offset;
-        attackBoxSize = new Vector2(3, 1);
         currPattenIndex = -1;
         nextPattenIndex = -1;
         nextPattern = false;
+
+        knockbackDistance = 1;
     }
 
     private void Update()
@@ -64,7 +62,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
 	private void FixedUpdate()
 	{
-        float dt = livingDeltaTime(timeScale);
+        float dt = livingDeltaTime();
 
 #if true
         rigid.MovePosition((Vector2)transform.position
@@ -76,7 +74,8 @@ public class Player : LivingEntity, IDamageable, IInitialize
 #endif
     }
 
-	private void OnTriggerEnter2D(Collider2D collision)
+#if false
+    private void OnTriggerEnter2D(Collider2D collision)
 	{
         if (pctrl.attacking)
         {
@@ -85,28 +84,60 @@ public class Player : LivingEntity, IDamageable, IInitialize
                 // take damage
                 attackBox.enabled = false;
                 IDamageable go = collision.GetComponent<IDamageable>();
-                go.onDamage(dmg);
+                go.onDamage(this);
             }
 
             else if (collision.tag == "MapObject")
 			{
                 attackBox.enabled = false;
                 IDamageable go = collision.GetComponent<IDamageable>();
-                go.onDamage(dmg);
+                go.onDamage(this);
             }
         }
     }
+#else
+
+	private void OnTriggerStay2D(Collider2D collision)
+	{
+        if (pctrl.attacking)
+        {
+            if (collision.tag == "Monster")
+            {
+                // take damage
+                attackBox.enabled = false;
+                IDamageable go = collision.GetComponent<IDamageable>();
+                go.onDamage(this);
+            }
+
+            else if (collision.tag == "MapObject")
+            {
+                attackBox.enabled = false;
+                IDamageable go = collision.GetComponent<IDamageable>();
+                go.onDamage(this);
+            }
+        }
+    }
+#endif
 
     //---------------------------------------------------
     // Interface
-    public void onDamage(float damage)
+    public void onDamage(LivingEntity entity)
 	{
         if (state == EntityState.dead)
             return;
 
         particle.Play();
 
-        hp -= damage;
+        StartCoroutine("crtHurtEffect");
+
+#if true
+        if (entity == null)
+        {
+            hp--;
+        }
+#else
+        hp -= entity.dmg;
+#endif
         if (hp < 0)
 		{
             hp = 0;
@@ -174,7 +205,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
                     {
                         state = EntityState.attack;
                         nextPattenIndex = 0;
-                        rotateAttackBox();
                         setAttackPatten();
                     }
                     break;
@@ -230,29 +260,11 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
     //---------------------------------------------------
     // Attack function
-    private void rotateAttackBox()
-    {
-        // #issue 히트박스 회전부분 개선필요
-        if (aniMovement.y != 0)
-        {
-            if (aniMovement.y > 0) attackBoxOffset.Set(0, 0.5f);
-            else attackBoxOffset.Set(0, -1);
-            attackBoxSize.Set(3, 1.5f);
-        }
-        else if (aniMovement.x != 0)
-        {
-            if (aniMovement.x > 0) attackBoxOffset.Set(1, 0);
-            else attackBoxOffset.Set(-1, 0);
-            attackBoxSize.Set(1.5f, 3);
-        }
-
-        attackBox.offset = attackBoxOffset;
-        attackBox.size = attackBoxSize;
-    }
 
 	private void nextPattenTrue()
 	{
         nextPattern = true;
+        attackBox.enabled = true;
     }
 
     private void setAttackPatten()
@@ -265,7 +277,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
         if (nextPattenIndex >= 3)
             return;
 
-        attackBox.enabled = true;
+        attackBox.enabled = false;
         nextPattern = false;
         currPattenIndex = nextPattenIndex;
 
@@ -281,6 +293,17 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
         animator.SetInteger("AttackPattern", currPattenIndex);
     }
+
+    public int currAttackPattern()
+	{
+        return currPattenIndex;
+	}
+
+    public Vector2 knockbackMonster(Vector2 v)
+	{
+        v *= knockbackDistance;
+        return v;
+	}
 
     //---------------------------------------------------
     // else function

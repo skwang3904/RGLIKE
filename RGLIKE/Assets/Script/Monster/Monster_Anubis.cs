@@ -79,7 +79,7 @@ public class Monster_Anubis : Monster
 
 	private void FixedUpdate()
 	{
-		float dt = livingDeltaTime(timeScale);
+		float dt = livingDeltaTime();
 
 		if (mapNumber != player.mapNumber)
 			return;
@@ -114,7 +114,7 @@ public class Monster_Anubis : Monster
 					if (isAttack && distanceToPlayer < 3 * (attackPattern + 1))
 					{
 						isAttack = false;
-						player.onDamage(dmg);
+						player.onDamage(this);
 					}
 					break;
 				}
@@ -129,9 +129,10 @@ public class Monster_Anubis : Monster
 		}
 	}
 
-	public override void onDamage(float damage)
+	public override void onDamage(LivingEntity entity)
 	{
-		base.onDamage(damage);
+		base.onDamage(entity);
+
 		particle.Play();
 		if(state == EntityState.dead)
 		{

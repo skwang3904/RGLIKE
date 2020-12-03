@@ -15,7 +15,7 @@ public class MapObject : NonLivingEntity, IDamageable, IMapObject
 		base.Awake();
 	}
 
-	public virtual void onDamage(float damage)
+	public virtual void onDamage(LivingEntity entity)
 	{
 		if (state == NonEntityState.dead)
 			return;

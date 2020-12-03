@@ -84,7 +84,7 @@ public class Monster_Destoyer : Monster
 
 	private void FixedUpdate()
 	{
-		float dt = livingDeltaTime(timeScale);
+		float dt = livingDeltaTime();
 
 		if (mapNumber != player.mapNumber)
 			return;
@@ -152,15 +152,15 @@ public class Monster_Destoyer : Monster
 		{
 			if(collision.tag == "Player")
 			{
-				collision.GetComponent<IDamageable>().onDamage(dmg);
+				collision.GetComponent<IDamageable>().onDamage(this);
 				isAttack = false;
 			}
 		}
 	}
 
-	public override void onDamage(float damage)
+	public override void onDamage(LivingEntity entity)
 	{
-		base.onDamage(damage);
+		base.onDamage(entity);
 
 		if (hp == _hp) pattern = DestoyerPattern.HP100;
 		else if (hp > 75) pattern = DestoyerPattern.HP75;
