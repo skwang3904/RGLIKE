@@ -132,11 +132,14 @@ public class Monster_Anubis : Monster
 	public override void onDamage(LivingEntity entity)
 	{
 		base.onDamage(entity);
+		setAttackPattern(-1);
 
 		particle.Play();
+
 		if(state == EntityState.dead)
 		{
-			initState();
+			//initState();
+			print("Anubis die");
 		}
 	}
 

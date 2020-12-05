@@ -40,6 +40,8 @@ public class LivingEntity : MonoBehaviour
 		moveBox = box[1];
 
 		particle = GetComponent<ParticleSystem>();
+
+		Shadow.instance.addShadow(this);
 	}
 
 	public IEnumerator crtHurtEffect()

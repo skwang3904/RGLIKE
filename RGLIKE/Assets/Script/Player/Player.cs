@@ -10,7 +10,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
     private List<KeyCode> list_operationKey;
 
-    private ParticleSystem particle;
     // controller
     private PlayerController pctrl;
     private Vector2 aniMovement;
@@ -35,7 +34,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
         list_operationKey = new List<KeyCode>();
         addOperationKey();
 
-        particle = GetComponent<ParticleSystem>();
         pctrl = GetComponent<PlayerController>();
         aniMovement = Vector2.zero;
 
@@ -58,6 +56,19 @@ public class Player : LivingEntity, IDamageable, IInitialize
         mainLogic();
 
         getOperationKeys();
+
+        if(pctrl.attacking)
+		{
+            foreach(Monster m in GameManager.instance.monsters)
+			{
+                if(hitBox.IsTouching(m.hitBox))
+				{
+                    m.onDamage(this);
+                    attackBox.enabled = false;
+                    break;
+                }
+			}
+		}
     }
 
 	private void FixedUpdate()
@@ -97,26 +108,6 @@ public class Player : LivingEntity, IDamageable, IInitialize
     }
 #else
 
-	private void OnTriggerStay2D(Collider2D collision)
-	{
-        if (pctrl.attacking)
-        {
-            if (collision.tag == "Monster")
-            {
-                // take damage
-                attackBox.enabled = false;
-                IDamageable go = collision.GetComponent<IDamageable>();
-                go.onDamage(this);
-            }
-
-            else if (collision.tag == "MapObject")
-            {
-                attackBox.enabled = false;
-                IDamageable go = collision.GetComponent<IDamageable>();
-                go.onDamage(this);
-            }
-        }
-    }
 #endif
 
     //---------------------------------------------------

@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     private Vector2 nextMapSize;
 
     // Monster
-    private Monster[] monsters; // 총 몬스터
+    public Monster[] monsters { get; private set; } // 총 몬스터
    
     private void Awake()
 	{
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
         createPlayer(); // vCamera
         createMapObject();
         createMonster();
-        createItems(); // items[] 풀메모리
+        createItems(); // itemsBase[] 풀메모리
     }
 
     private void Update()
@@ -326,6 +326,7 @@ public class GameManager : MonoBehaviour
     {
         int i, j;
         Item.createItems();
+#if false
         int kinds = (int)IMacro.Item_Type.Max;
         int num = Item.Max_itemNum;
 
@@ -341,9 +342,10 @@ public class GameManager : MonoBehaviour
 
                 g.transform.SetParent(parent.transform);
                 g.transform.Translate(-100, -100, 0);
-                Item.items[i].Add(g.GetComponent<Item>());
+                Item.itemsBase[i].Add(g.GetComponent<Item>());
             }
         }
+#endif
     }
 
     //---------------------------------------------------------------------------

@@ -19,19 +19,16 @@ public class Inventory : MonoBehaviour
 	private RectTransform maskRectf;
 	private Scrollbar invenScrollbar;
 
-	private List<Item> list_Item;
-	public List<Sprite> listItemSprite;
-
 	private Dropdown invenSortMenu;
 
 	//------------------------------------------------------------
 	// inven slot
 
-	private List<Inventory_Slot> list_invenSlot;
+	public List<Inventory_Slot> list_invenSlot { get; private set; }
 	private const int slotNum = 20;
 	private Vector2[] slotPos;
 
-	private List<Inventory_Slot> list_quickSlot;
+	public List<Inventory_Slot> list_quickSlot { get; private set; }
 	private const int quickSlotNum = 4;
 	public bool inventoryOpen { get; private set; }
 	private float invenOpenDt, _invenOpenDt;
@@ -65,18 +62,9 @@ public class Inventory : MonoBehaviour
 		invenScrollbar = transform.Find("Scrollbar").GetComponent<Scrollbar>();
 		invenScrollbar.onValueChanged.AddListener(invenActiveScrollbar);
 
-		list_Item = new List<Item>();
-		listItemSprite = new List<Sprite>();
-		//for (i = 0; i < (int)IMacro.Item_Type.Max; i++) 
-		for (i = 0; i < 2; i++)
-		{
-			listItemSprite.Add(
-				GameObject.Find("ItemImage")
-				.transform.GetChild(i)
-				.GetComponent<SpriteRenderer>().sprite);
-		}
 
-
+		//------------------------------------------------------------
+		// dropdown
 		invenSortMenu = transform.Find("Dropdown").GetComponent<Dropdown>();
 		invenSortMenu.onValueChanged.AddListener(delegate 
 		{ 
@@ -111,7 +99,7 @@ public class Inventory : MonoBehaviour
 			qs.transform.SetParent(null);
 
 			slot = slots_go.GetComponent<Inventory_Slot>();
-			slot.init(InventorySlotType.Nomal, i);
+			slot.init(InventorySlotType.Nomal, 0);
 			list_invenSlot.Add(slot);
 		}
 
@@ -136,7 +124,7 @@ public class Inventory : MonoBehaviour
 			slots_go.transform.SetParent(quick_go.transform);
 
 			slot = slots_go.GetComponent<Inventory_Slot>();
-			slot.init(InventorySlotType.Quick,i);
+			slot.init(InventorySlotType.Quick, i);
 			list_quickSlot.Add(slot);
 		}
 
@@ -151,8 +139,8 @@ public class Inventory : MonoBehaviour
 		//inventoryOpen = true;
 		if (Input.GetKeyDown(KeyCode.G))
 		{
-			addListItem(Item.items[0][0]);
-			addListItem(Item.items[1][0]);
+			addItemInventory(Item.itemsBase[0]);
+			addItemInventory(Item.itemsBase[1]);
 		}
 
 #endif
@@ -278,7 +266,6 @@ public class Inventory : MonoBehaviour
 		int i;
 		if (Input.GetMouseButtonDown(0))
 		{
-			Vector2 contain;
 			// 인벤슬롯 검사
 			int n = list_invenSlot.Count;
 			for (i = 0; i < n; i++) 
@@ -286,8 +273,8 @@ public class Inventory : MonoBehaviour
 				Inventory_Slot slot = list_invenSlot[i];
 				if (slot.item == null)
 					continue;
-				contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
-				if (slot.rectf.rect.Contains(contain))
+				
+				if (slot.contain(Input.mousePosition))
 				{
 					//mci.clickSlot = slot;
 					UIMouse.instance.clickInvenItem(slot);
@@ -302,8 +289,8 @@ public class Inventory : MonoBehaviour
 				Inventory_Slot slot = list_quickSlot[i];
 				if (slot.item == null)
 					continue;
-				contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
-				if (slot.rectf.rect.Contains(contain))
+
+				if (slot.contain(Input.mousePosition))
 				{
 					//mci.clickSlot = slot;
 					UIMouse.instance.clickInvenItem(slot);
@@ -321,9 +308,11 @@ public class Inventory : MonoBehaviour
 				{
 					if (UIMouse.instance.imgClick.sprite == null)
 					{
-						UIMouse.instance.imgClick.sprite = UIMouse.instance.invenSlotClick.itemImg.sprite;
+						UIMouse.instance.imgClick.sprite = 
+							UIMouse.instance.invenSlotClick.item.spriteRenderer.sprite;
+
 						UIMouse.instance.imgClick.color = IMacro.color_White;
-						UIMouse.instance.invenSlotClick.itemImg.color = IMacro.color_White * 0.5f;
+						UIMouse.instance.invenSlotClick.item.spriteRenderer.color = IMacro.color_White * 0.5f;
 					}
 				}
 			}
@@ -336,62 +325,47 @@ public class Inventory : MonoBehaviour
 				{
 					//mci.clickSlot.useItem();
 					UIMouse.instance.invenSlotClick.useItem();
-
 				}
 				else
 				{
-					// 인벤슬롯 검사
+					bool check = true;
 					if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Nomal)
 					{
+						// 인벤슬롯 검사
 						foreach (Inventory_Slot slot in list_invenSlot)
 						{
-							Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
-							if (slot.rectf.rect.Contains(contain))
+							if (!maskRectf.rect.Contains(slot.rectf.anchoredPosition))
+								continue;
+
+							if (slot.contain(Input.mousePosition))
 							{
-								slot.changeSlot(UIMouse.instance.invenSlotClick);
+								slot.change(UIMouse.instance.invenSlotClick);
+								check = false;
 								break;
 							}
 						}
-					}
 
-					// 퀵슬롯 검사
-					bool check = true;
-					foreach (Inventory_Slot slot in list_quickSlot)
-					{
-						Vector2 contain = slot.rectf.InverseTransformPoint(Input.mousePosition);
-						if (slot.rectf.rect.Contains(contain))
+						if(check)
 						{
-							if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Nomal)
+							foreach (Inventory_Slot slot in list_quickSlot)
 							{
-								foreach (Inventory_Slot s in list_quickSlot)
+								if (slot.contain(Input.mousePosition))
 								{
-									if (slot == s)
-										continue;
-
-									if (s.item == UIMouse.instance.invenSlotClick.item)
-									{
-										s.removeItemQuickSlot();
-										break;
-									}
+									slot.addQuickSlot(UIMouse.instance.invenSlotClick);
+									break;
 								}
-
-								slot.addItemQuickSlot(UIMouse.instance.invenSlotClick);
 							}
-							else if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Quick)
-								slot.changeSlot(UIMouse.instance.invenSlotClick);
-
-							check = false;
-							break;
 						}
-					}
 
-					if (check)
+					}
+					else if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Quick)
 					{
+						// 퀵슬롯 검사
 						foreach (Inventory_Slot slot in list_quickSlot)
 						{
-							if (slot == UIMouse.instance.invenSlotClick)
+							if (slot.contain(Input.mousePosition))
 							{
-								slot.removeItemQuickSlot();
+								slot.change(UIMouse.instance.invenSlotClick);
 								break;
 							}
 						}
@@ -404,8 +378,9 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
-	public void addListItem(Item item)
+	public void addItemInventory(Item it)
 	{
+		Item item = Instantiate(it);
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
 			//#issue 추후 아이템 종류 추가시 수정
@@ -414,11 +389,9 @@ public class Inventory : MonoBehaviour
 
 			if (slot.item.type == item.type)
 			{
-				slot.addItemNum(1);
-				if(slot.connectSlot)
-				{
-					slot.connectSlot.addItemNum(1);
-				}
+				slot.increaseNum(1);
+
+				slot.connectSlot?.increaseNum(1);
 				return;
 			}
 		}
@@ -427,8 +400,7 @@ public class Inventory : MonoBehaviour
 		{
 			if (slot.item == null)
 			{
-				list_Item.Add(item);
-				slot.addItemInvenSlot(item);
+				slot.addItem(item);
 				break;
 			}
 		}
@@ -446,34 +418,40 @@ public class Inventory : MonoBehaviour
 				}
 			case 1: // name 
 				{
-					//list_Item sort
-					list_Item.Sort(invenListItemSortName);
-
-					/*				 */
-					for (int i = 0; i < list_Item.Count; i++)
-						print(list_Item[i] + "  /  " + i);
-					//list_invenSlot reset
-					foreach (Inventory_Slot slot in list_invenSlot)
-					{
-						if (slot.item)
-							slot.clear();
-					}
-
-					for (int i = 0; i < list_Item.Count; i++) 
-						list_invenSlot[i].addItemInvenSlot(list_Item[i]);
+					list_invenSlot.Sort(invenListItemSortName);
 					break;
 				}
 			case 2: // amount
 				{
+					list_invenSlot.Sort(invenListItemSortAmount);
 					break;
 				}
 		}
+
+		// sort 후 아이템 사라짐 -> 인벤 클릭하거나 아래 코드 한번 실행하면 보임
+		{
+			int nn = list_invenSlot.Count;
+			for (int i = 0; i < nn; i++)
+			{
+				list_invenSlot[i].GetComponent<RectTransform>().anchoredPosition =
+					slotPos[i] + invenPosLimit;
+			}
+		}
 	}
 
-	private int invenListItemSortName(Item A, Item B)
+	//---------------------------------------------------------------
+	// Sort Method
+	private int invenListItemSortName(Inventory_Slot A, Inventory_Slot B)
 	{
-		int a = A.strName[0];
-		int b = B.strName[0];
+		if (A.item == null && B.item == null)
+			return 0;
+		else if (A.item == null)
+			return 1;
+		else if (B.item == null)
+			return -1;
+
+		int a = A.item.strName[0];
+		int b = B.item.strName[0];
 
 		if (a < 65 || a > 122) print("sort error item name out of range [a]");
 		if (b < 65 || b > 122) print("sort error item name out of range [b]");
@@ -481,24 +459,29 @@ public class Inventory : MonoBehaviour
 		if (a < 91)	a += 32;
 		if (b < 91)	b += 32;
 
-		if (a > b)		return 1;
-		else if (a < b)	return -1;
-		else			return 0;
+		if (a > b)	
+			return 1;
+		else if (a < b) 
+			return -1;
+		else 
+			return 0;
 	}
 
-	private int invenListItemSortAmount(Item A, Item B)
+	private int invenListItemSortAmount(Inventory_Slot A, Inventory_Slot B)
 	{
-		if (A.strName[0] > B.strName[0])
-		{
-			return 1;
-		}
-		else if (A.strName[0] < B.strName[0])
-		{
-			return -1;
-		}
-		else
-		{
+		if (A.item == null && B.item == null)
 			return 0;
-		}
+		else if (A.item == null)
+			return 1;
+		else if (B.item == null)
+			return -1;
+
+
+		if (A.itemNum > B.itemNum) 
+			return 1;
+		else if (A.itemNum < B.itemNum) 
+			return -1;
+		else
+			return 0;
 	}
 }

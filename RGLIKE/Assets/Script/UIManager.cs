@@ -270,18 +270,18 @@ public class UIManager : MonoBehaviour
 		Rect rt = new Rect();
 		LivingEntity entity;
 		Vector2 v;
-		for(int i=0; i<count;i++)
+		for (int i = 0; i < count; i++) 
 		{
 			entity = t.GetChild(i).GetComponent<LivingEntity>();
 			hp = entity.hp;
 			_hp = entity._hp;
 
 			v = Camera.main.WorldToScreenPoint(entity.transform.position);
-			v.x -= 30;
-			v.y = Screen.height - v.y + 30;
+			v.x -= 50;
+			v.y = Screen.height - v.y - 50;
 			rt.Set(v.x, v.y, 100, 100);
 			GUI.Label(rt, hp.ToString());
-			rt.x += + 30;
+			rt.x += + 20;
 			GUI.Label(rt, _hp.ToString());
 		}
 	}

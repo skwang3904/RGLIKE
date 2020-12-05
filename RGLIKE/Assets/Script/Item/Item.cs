@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Item : NonLivingEntity, IItem
 {
-	public static List<Item>[] items = null;
+	public static List<Item> itemsBase;
 	public static int Max_itemNum = 10;
 	public IMacro.Item_Type type;
 
@@ -15,12 +15,20 @@ public class Item : NonLivingEntity, IItem
 
 	public static void createItems()
 	{
-		if (items != null)
+		if (itemsBase != null)
 			return;
 
-		items = new List<Item>[(int)IMacro.Item_Type.Max];
-		for(int i=0; i<items.Length;i++)
-			items[i] = new List<Item>();
+		itemsBase = new List<Item>();
+		UnityEngine.Object[] objs = Resources.LoadAll("Prefabs/Item");
+		Item item;
+		GameObject g;
+		foreach(UnityEngine.Object o in objs)
+		{
+			g = o as GameObject;
+			item = g.GetComponent<Item>();
+			itemsBase.Add(item);
+			print("add pool itemsBase : [" + item + "]");
+		}
 	}
 
 
@@ -90,7 +98,7 @@ public class Item : NonLivingEntity, IItem
 					if (isActive)
 					{
 						//onUse();
-						Inventory.instance.addListItem(this);
+						Inventory.instance.addItemInventory(this);
 						setItemState(NonEntityState.Disappear);
 					}
 					break;
@@ -141,14 +149,14 @@ public class Item : NonLivingEntity, IItem
 	public static void dropItem(int mapNum, Vector2 position,
 		IMacro.Item_Type index, int num)
 	{
-		int idx = (int)index;
 		int n = 0;
-
-		foreach (Item it in items[idx])
+		foreach (Item it in itemsBase)
 		{
-			if (it.state == NonEntityState.NonAppear)
+			if (it.state == NonEntityState.NonAppear &&
+				it.type == index)
 			{
-				it.appearItem(mapNum, position);
+				Item item = Instantiate(it);
+				item.appearItem(mapNum, position);
 				n++;
 			}
 
