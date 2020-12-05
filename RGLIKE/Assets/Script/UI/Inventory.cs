@@ -135,12 +135,15 @@ public class Inventory : MonoBehaviour
 
 	private void Update()
 	{
-#if true //test
-		//inventoryOpen = true;
+#if true // inven sort test
 		if (Input.GetKeyDown(KeyCode.G))
 		{
-			addItemInventory(Item.itemsBase[0]);
-			addItemInventory(Item.itemsBase[1]);
+			print(Item.itemsBase.Count);
+			foreach(Item item in Item.itemsBase)
+			{
+				addItemInventory(item);
+			}
+
 		}
 
 #endif
@@ -150,6 +153,33 @@ public class Inventory : MonoBehaviour
 		invenItemClick();
 		invenScrollMouse();
 	}
+
+#if true // inven sort test
+	private void OnGUI()
+	{
+		if (!inventoryOpen)
+			return;
+
+		for (int i = 0; i < list_invenSlot.Count; i++) 
+		{
+			if (list_invenSlot[i].item == null)
+				continue;
+
+
+			Vector2 pos = rectf.anchoredPosition 
+				+ list_invenSlot[i].rectf.anchoredPosition;
+			Vector2 size = list_invenSlot[i].rectf.sizeDelta;
+			pos *= UIManager.instance.canvasUI.transform.localScale;
+			size *= UIManager.instance.canvasUI.transform.localScale;
+			pos.x += Screen.width / 9;
+			pos.y = Screen.height * 0.8f - pos.y;
+			Rect rt = new Rect(pos,	size);
+
+			GUI.Label(rt, list_invenSlot[i].item.strName);
+
+		}
+	}
+#endif
 
 	//--------------------------------------------------------------------------------
 
@@ -380,7 +410,13 @@ public class Inventory : MonoBehaviour
 
 	public void addItemInventory(Item it)
 	{
+#if false // test
 		Item item = Instantiate(it);
+#else
+		Item item = Instantiate(it);
+		item.type = it.type;
+		item.strName = it.strName;
+#endif
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
 			//#issue 추후 아이템 종류 추가시 수정

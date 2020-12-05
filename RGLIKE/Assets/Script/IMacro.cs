@@ -64,6 +64,7 @@ public static class IMacro
 		Gold = 0,
 		Potion,
 
+		A,B,C,D,E,F,G,H,I,J,
 		None,
 		Max,
 	}

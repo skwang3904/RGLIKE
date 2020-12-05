@@ -41,9 +41,21 @@ public class LivingEntity : MonoBehaviour
 
 		particle = GetComponent<ParticleSystem>();
 
-		Shadow.instance.addShadow(this);
+		StartCoroutine("crtShadowAdd");
 	}
 
+	public IEnumerator crtShadowAdd()
+	{
+		while(true)
+		{
+			if(Shadow.instance != null)
+			{
+				Shadow.instance.addShadow(this);
+				break;
+			}
+			yield return null;
+		}
+	}
 	public IEnumerator crtHurtEffect()
 	{
 		Color c = Color.white;

@@ -7,10 +7,6 @@ public class Monster_Anubis : Monster
 	protected override void Awake()
 	{
 		base.Awake();
-	}
-
-	private void Start()
-	{
 		randMove();
 	}
 

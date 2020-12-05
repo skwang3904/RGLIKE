@@ -24,10 +24,19 @@ public class Item : NonLivingEntity, IItem
 		GameObject g;
 		foreach(UnityEngine.Object o in objs)
 		{
-			g = o as GameObject;
+			g = Instantiate(o) as GameObject;
 			item = g.GetComponent<Item>();
 			itemsBase.Add(item);
 			print("add pool itemsBase : [" + item + "]");
+		}
+
+		for (int i = 0; i < 10; i++) 
+		{
+			// inven sort test
+			item = Instantiate(itemsBase[0]);
+			item.type = IMacro.Item_Type.A + i;
+			item.strName = Convert.ToChar(65 + i).ToString();
+			itemsBase.Add(item);
 		}
 	}
 

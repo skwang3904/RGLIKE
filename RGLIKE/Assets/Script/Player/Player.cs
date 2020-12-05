@@ -57,7 +57,7 @@ public class Player : LivingEntity, IDamageable, IInitialize
 
         getOperationKeys();
 
-        if(pctrl.attacking)
+        if(state == EntityState.attack)
 		{
             foreach(Monster m in GameManager.instance.monsters)
 			{
