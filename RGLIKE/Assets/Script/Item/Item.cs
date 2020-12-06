@@ -10,6 +10,8 @@ public class Item : NonLivingEntity, IItem
 	public IMacro.Item_Type type;
 
 	public string strName;
+	public string strInfomation;
+	public string strUseEffect;
 	private delegate void onUseMethod(IMacro.Item_Type type);
 	private onUseMethod useMethod;
 

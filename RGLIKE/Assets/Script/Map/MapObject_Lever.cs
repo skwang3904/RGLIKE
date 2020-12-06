@@ -14,7 +14,7 @@ public class MapObject_Lever : MapObject
 
 	private void FixedUpdate()
 	{
-		if(touchBox.IsTouching(player.hitBox))
+		if(touchBox.IsTouching(player.moveBox))
 		{
 			if (Input.GetKeyDown(KeyCode.J))
 			{

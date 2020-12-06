@@ -44,6 +44,8 @@ public class LevelData
 			playerData.nextPlayer(Player.instance);
 			monsterData.nextMonster();
 
+
+			Shadow.instance.deleteShadow();
 			GameManager.instance.createNextLevel();
 		}
 		

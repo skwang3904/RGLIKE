@@ -28,9 +28,9 @@ public class PlayerData
 			}
 		}
 		hp = _hp = 100.0f;
-		dmg = _dmg = 10.0f;
+		dmg = _dmg = 20.0f;
 		attackDt = _attackDt = 1.0f;
-		moveSpeed = 10.0f;
+		moveSpeed = 15.0f;
 	}
 
 	public PlayerData(PlayerData pd)

@@ -26,7 +26,9 @@ public class Item_Gold : Item
 
 		//setItemState(NonEntityState.Appear);
 		this.type = type;
-		strName = IMacro.ItemName[(int)IMacro.Item_Type.Gold];
 		value = 1;
+		strName = IMacro.ItemName[(int)IMacro.Item_Type.Gold];
+		strInfomation = "Gold Coin";
+		strUseEffect = "Gold +" + value;
 	}
 }

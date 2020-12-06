@@ -25,7 +25,9 @@ public class Item_Potion : Item
 
 		//setItemState(NonEntityState.Appear);
 		this.type = type;
-		strName = IMacro.ItemName[(int)IMacro.Item_Type.Potion];
 		value = 10;
+		strName = IMacro.ItemName[(int)IMacro.Item_Type.Potion];
+		strInfomation = "Health Potion";
+		strUseEffect = "Player HP +"+ value;
 	}
 }

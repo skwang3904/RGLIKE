@@ -68,4 +68,8 @@ public class Shadow : MonoBehaviour
 		livings.Add(shadow);
 	}
 
+	public void deleteShadow()
+	{
+		livings.Clear();
+	}
 }

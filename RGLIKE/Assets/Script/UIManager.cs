@@ -115,10 +115,11 @@ public class UIManager : MonoBehaviour
 	{
 		player = Player.instance;
 		g = GameManager.instance;
-
-		UIMouse.instance.transform.SetAsLastSibling();
 	}
 
+	private Vector2 resol1 = new Vector2(1920, 1080);
+	private Vector2 resol2 = new Vector2(1280, 720);
+	private bool resol = false;
 	private void Update()
 	{
 		text_PlayTime.text = "Play Time [ "
@@ -134,6 +135,21 @@ public class UIManager : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			pauseGame();
+		}
+
+		if (Input.GetKeyDown(KeyCode.T))
+		{
+			resol = !resol;
+			if(resol)
+				Screen.SetResolution(
+					Mathf.RoundToInt(resol1.x), 
+					Mathf.RoundToInt(resol1.y), 
+					true);
+			else
+				Screen.SetResolution(
+					Mathf.RoundToInt(resol2.x),
+					Mathf.RoundToInt(resol2.y),
+					false);
 		}
 	}
 
@@ -262,6 +278,7 @@ public class UIManager : MonoBehaviour
 		return tex;
 	}
 
+	private GUIStyle guiStyle;
 	private void drawMonsterHPbar()
 	{
 		Transform t = GameObject.Find("Monsters").transform;
@@ -270,6 +287,16 @@ public class UIManager : MonoBehaviour
 		Rect rt = new Rect();
 		LivingEntity entity;
 		Vector2 v;
+
+		if(guiStyle == null)
+		{
+			guiStyle = new GUIStyle();
+			guiStyle.fontSize = 20;
+			guiStyle.fontStyle = FontStyle.BoldAndItalic;
+			guiStyle.normal.textColor = Color.red;
+			
+		}
+
 		for (int i = 0; i < count; i++) 
 		{
 			entity = t.GetChild(i).GetComponent<LivingEntity>();
@@ -277,12 +304,10 @@ public class UIManager : MonoBehaviour
 			_hp = entity._hp;
 
 			v = Camera.main.WorldToScreenPoint(entity.transform.position);
-			v.x -= 50;
-			v.y = Screen.height - v.y - 50;
+			v.x -= 20;
+			v.y = Screen.height - v.y - 60;
 			rt.Set(v.x, v.y, 100, 100);
-			GUI.Label(rt, hp.ToString());
-			rt.x += + 20;
-			GUI.Label(rt, _hp.ToString());
+			GUI.Label(rt, hp.ToString() + "/" + _hp.ToString(), guiStyle);
 		}
 	}
 }

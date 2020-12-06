@@ -85,20 +85,20 @@ public class Player : LivingEntity, IDamageable, IInitialize
 #endif
     }
 
-#if false
+#if true
     private void OnTriggerEnter2D(Collider2D collision)
 	{
-        if (pctrl.attacking)
+        if (state == EntityState.attack)
         {
-            if (collision.tag == "Monster")
-            {
-                // take damage
-                attackBox.enabled = false;
-                IDamageable go = collision.GetComponent<IDamageable>();
-                go.onDamage(this);
-            }
+//            if (collision.tag == "Monster")
+//            {
+//                // take damage
+//                attackBox.enabled = false;
+//                IDamageable go = collision.GetComponent<IDamageable>();
+//                go.onDamage(this);
+//            }
 
-            else if (collision.tag == "MapObject")
+            if (collision.tag == "MapObject")
 			{
                 attackBox.enabled = false;
                 IDamageable go = collision.GetComponent<IDamageable>();

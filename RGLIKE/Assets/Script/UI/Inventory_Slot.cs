@@ -120,6 +120,11 @@ public class Inventory_Slot : MonoBehaviour
 		connectSlot = slot.connectSlot;
 		slot.connectSlot = s;
 
+		if(connectSlot)
+			connectSlot.connectSlot = this;
+		if(slot.connectSlot)
+			slot.connectSlot.connectSlot = slot;
+
 		Item it = item;
 		item = slot.item;
 		slot.item = it;

@@ -13,6 +13,7 @@ public class Inventory : MonoBehaviour
 	private Image img;
 	private Text text;
 
+	private bool moveInven;
 	private bool dragInven;
 	private Vector2 prevMousePos;
 	private Vector2 invenPosLimit;
@@ -128,9 +129,9 @@ public class Inventory : MonoBehaviour
 			list_quickSlot.Add(slot);
 		}
 
+		quick_go.transform.SetAsFirstSibling();
 		transform.SetParent(UIManager.instance.canvasUI.transform);
-		transform.SetAsLastSibling();
-		quick_go.transform.SetAsLastSibling();
+		transform.SetAsFirstSibling();
 	}
 
 	private void Update()
@@ -152,6 +153,31 @@ public class Inventory : MonoBehaviour
 
 		invenItemClick();
 		invenScrollMouse();
+
+		if(UIMouse.instance.invenSlotClick == null)
+		{
+			if (Input.GetMouseButtonDown(0))
+			{
+				if (rectf.rect.Contains(rectf.InverseTransformPoint(Input.mousePosition)))
+				{
+					moveInven = true;
+					prevMousePos = Input.mousePosition;
+				}
+			}
+			else if(Input.GetMouseButton(0))
+			{
+				if(moveInven)
+				{
+					rectf.position = (Vector2)(rectf.position + Input.mousePosition) - prevMousePos;
+					prevMousePos = Input.mousePosition;
+				}
+			}
+			else if(Input.GetMouseButtonUp(0))
+			{
+				moveInven = false;
+			}
+
+		}
 	}
 
 #if true // inven sort test
@@ -239,6 +265,7 @@ public class Inventory : MonoBehaviour
 					list_invenSlot[i].GetComponent<RectTransform>().anchoredPosition =
 						slotPos[i] + invenPosLimit;
 				}
+
 				prevMousePos = Input.mousePosition;
 			}
 		}
@@ -246,6 +273,9 @@ public class Inventory : MonoBehaviour
 		else if (Input.GetMouseButtonUp(0))
 		{
 			dragInven = false;
+
+			float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
+			invenScrollbar.value = invenPosLimit.y / n;
 		}
 	}
 
@@ -396,8 +426,14 @@ public class Inventory : MonoBehaviour
 							if (slot.contain(Input.mousePosition))
 							{
 								slot.change(UIMouse.instance.invenSlotClick);
+								check = false;
 								break;
 							}
+						}
+						
+						if(check)
+						{
+							UIMouse.instance.invenSlotClick.clear();
 						}
 					}
 				}
@@ -413,9 +449,7 @@ public class Inventory : MonoBehaviour
 #if false // test
 		Item item = Instantiate(it);
 #else
-		Item item = Instantiate(it);
-		item.type = it.type;
-		item.strName = it.strName;
+
 #endif
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
@@ -423,7 +457,7 @@ public class Inventory : MonoBehaviour
 			if (slot.item == null)
 				continue;
 
-			if (slot.item.type == item.type)
+			if (slot.item.type == it.type)
 			{
 				slot.increaseNum(1);
 
@@ -431,6 +465,10 @@ public class Inventory : MonoBehaviour
 				return;
 			}
 		}
+
+		Item item = Instantiate(it);
+		item.type = it.type;
+		item.strName = it.strName;
 
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
