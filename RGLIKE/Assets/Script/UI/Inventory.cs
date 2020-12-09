@@ -146,8 +146,8 @@ public class Inventory : MonoBehaviour
 			}
 
 		}
-
 #endif
+
 		if (!inventoryOpen)
 			return;
 
@@ -211,7 +211,8 @@ public class Inventory : MonoBehaviour
 
 	public void invenActiveScrollbar(float val)
 	{
-		float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
+		float n = slotNum / 5 * (list_invenSlot[0].rectf.sizeDelta.y + 50)
+			- maskRectf.sizeDelta.y + 50;  // 50 = 간격
 		invenPosLimit.y =  n * val;
 		if (invenPosLimit.y < 0)
 		{
@@ -249,7 +250,10 @@ public class Inventory : MonoBehaviour
 			if (dragInven)
 			{
 				invenPosLimit.y += (Input.mousePosition.y - prevMousePos.y) / UIManager.instance.canvasUI.transform.localScale.y;
-				float n = maskRectf.sizeDelta.y - 120; // #issue 임의값
+
+				float n = slotNum / 5 * (list_invenSlot[0].rectf.sizeDelta.y + 50)
+							- maskRectf.sizeDelta.y + 50; // 50 = 간격
+
 				if (invenPosLimit.y < 0)
 				{
 					invenPosLimit.y = 0;
@@ -480,6 +484,9 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
+
+	//---------------------------------------------------------------
+	// Sort Method
 	public void invenDropdown(Dropdown dropdown)
 	{
 		int val = dropdown.value;
@@ -513,8 +520,6 @@ public class Inventory : MonoBehaviour
 		}
 	}
 
-	//---------------------------------------------------------------
-	// Sort Method
 	private int invenListItemSortName(Inventory_Slot A, Inventory_Slot B)
 	{
 		if (A.item == null && B.item == null)

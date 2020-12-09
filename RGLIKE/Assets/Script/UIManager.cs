@@ -137,6 +137,8 @@ public class UIManager : MonoBehaviour
 			pauseGame();
 		}
 
+
+
 		if (Input.GetKeyDown(KeyCode.T))
 		{
 			resol = !resol;
@@ -183,6 +185,7 @@ public class UIManager : MonoBehaviour
 		pauseFadeDt = 0;
 		float dt = Time.deltaTime; 
 		Time.timeScale = 0;
+		Color c = Color.black;
 		while (true)
 		{
 			pauseFadeDt += dt;
@@ -191,7 +194,7 @@ public class UIManager : MonoBehaviour
 				pauseBG.GetComponent<Image>().color = Color.black * 0.8f;
 				break;
 			}
-			Color c = new Color(0, 0, 0, pauseFadeDt / _pauseFadeDt * 0.8f);
+			c.a = pauseFadeDt / _pauseFadeDt * 0.8f;
 			pauseBG.GetComponent<Image>().color = c;
 
 			yield return null;

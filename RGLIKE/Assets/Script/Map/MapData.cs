@@ -10,8 +10,8 @@ public class MapData
 	public int mapTotalNum;
 	public int mapTotalSqrt;
 	public int mapConnectNum;
-	public bool[] maps; // 실제 맵 존재여부
-	public bool[] connectDir; // 연결된 맵 방향 = 0:left, 1:right, 2:up, 3:down,
+	public bool[] maps; // 타일 맵 생성
+	public bool[] connectDir; // 맵 연결방향(maps*4) = 0:left, 1:right, 2:up, 3:down,
     public IMacro.MAP_NAME[] mapName;
 	public MapState[] mapStates;
 

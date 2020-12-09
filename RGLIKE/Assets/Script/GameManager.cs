@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     private const float _gameOverDt = 1f;
 
     public Map[] maps { get; private set; }
-    public Player player { get; private set; }
+    private Player player;
 
     //virtual camera
     public CinemachineVirtualCamera vCamera;

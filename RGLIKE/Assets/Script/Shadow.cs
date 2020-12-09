@@ -70,6 +70,11 @@ public class Shadow : MonoBehaviour
 
 	public void deleteShadow()
 	{
+		foreach(Shadows s in livings)
+		{
+			Destroy(s.gDst);
+			s.gDst.transform.SetParent(null);
+		}
 		livings.Clear();
 	}
 }

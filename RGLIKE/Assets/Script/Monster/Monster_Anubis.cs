@@ -107,6 +107,7 @@ public class Monster_Anubis : Monster
 				}
 			case EntityState.attack:
 				{
+					rigid.velocity = Vector2.zero;
 					if (isAttack && distanceToPlayer < 3 * (attackPattern + 1))
 					{
 						isAttack = false;
@@ -116,6 +117,8 @@ public class Monster_Anubis : Monster
 				}
 			case EntityState.hurt:
 				{
+					rigid.velocity = Vector2.zero;
+
 					break;
 				}
 			case EntityState.dead:
