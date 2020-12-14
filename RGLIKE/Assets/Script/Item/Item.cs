@@ -5,22 +5,22 @@ using UnityEngine;
 
 public class Item : NonLivingEntity, IItem
 {
-	public static List<Item> itemsBase;
+	public static List<Item> itemList;
 	public static int Max_itemNum = 10;
-	public IMacro.Item_Type type;
-
+	public Item_Type type;
+	
 	public string strName;
 	public string strInfomation;
 	public string strUseEffect;
-	private delegate void onUseMethod(IMacro.Item_Type type);
+	private delegate void onUseMethod(Item_Type type);
 	private onUseMethod useMethod;
 
 	public static void createItems()
 	{
-		if (itemsBase != null)
+		if (itemList != null)
 			return;
 
-		itemsBase = new List<Item>();
+		itemList = new List<Item>();
 		UnityEngine.Object[] objs = Resources.LoadAll("Prefabs/Item");
 		Item item;
 		GameObject g;
@@ -28,17 +28,17 @@ public class Item : NonLivingEntity, IItem
 		{
 			g = Instantiate(o) as GameObject;
 			item = g.GetComponent<Item>();
-			itemsBase.Add(item);
-			print("add pool itemsBase : [" + item + "]");
+			itemList.Add(item);
+			print("add pool itemList : [" + item + "]");
 		}
 
 		for (int i = 0; i < 10; i++) 
 		{
 			// inven sort test
-			item = Instantiate(itemsBase[0]);
-			item.type = IMacro.Item_Type.A + i;
+			item = Instantiate(itemList[0]);
+			item.type = Item_Type.A + i;
 			item.strName = Convert.ToChar(65 + i).ToString();
-			itemsBase.Add(item);
+			itemList.Add(item);
 		}
 	}
 
@@ -54,11 +54,11 @@ public class Item : NonLivingEntity, IItem
 		useMethod?.Invoke(type);
 	}
 
-	public virtual void initialize(int mapNum, IMacro.Item_Type type)
+	public virtual void initialize(int mapNum, Item_Type type)
 	{
 		transform.position = new Vector2(-100, -100);
 		state = NonEntityState.NonAppear;
-		this.type = IMacro.Item_Type.None;
+		this.type = Item_Type.None;
 		//mapNumber = mapNum;
 		value = 0;
 
@@ -100,7 +100,7 @@ public class Item : NonLivingEntity, IItem
 				{
 					// if use 
 					// setItemState(NonEntityState.Active);
-					if (touchBox.IsTouching(player.moveBox))
+					if (touchBox.IsTouching(Player.instance.moveBox))
 						setItemState(NonEntityState.Active);
 					break;
 				}
@@ -130,22 +130,22 @@ public class Item : NonLivingEntity, IItem
 	//-------------------------------------------------------
 	// on use function
 	
-	public void useItem(IMacro.Item_Type type)
+	public void useItem(Item_Type type)
 	{
 		//#issue 추후 아이템 종류 추가시 수정
 		switch (type)
 		{
-			case IMacro.Item_Type.Gold:
+			case Item_Type.Gold:
 				{
 					GameManager.instance.gold += value;
 					break;
 				}
-			case IMacro.Item_Type.Potion:
+			case Item_Type.Potion:
 				{
-					player.hp += value;
+					Player.instance.hp += value;
 					break;
 				}
-			case IMacro.Item_Type.None:
+			case Item_Type.None:
 				{
 					break;
 				}
@@ -158,10 +158,10 @@ public class Item : NonLivingEntity, IItem
 	// drop function
 
 	public static void dropItem(int mapNum, Vector2 position,
-		IMacro.Item_Type index, int num)
+		Item_Type index, int num)
 	{
 		int n = 0;
-		foreach (Item it in itemsBase)
+		foreach (Item it in itemList)
 		{
 			if (it.state == NonEntityState.NonAppear &&
 				it.type == index)

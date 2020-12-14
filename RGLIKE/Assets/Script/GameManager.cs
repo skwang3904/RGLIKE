@@ -55,11 +55,11 @@ public class GameManager : MonoBehaviour
             ld.loadLevel();
         }
 
+        createItems(); // itemList[] 풀메모리
         createMap(); // maps
         createPlayer(); // vCamera
         createMapObject();
         createMonster();
-        createItems(); // itemsBase[] 풀메모리
     }
 
     private void Update()
@@ -130,6 +130,35 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    //---------------------------------------------------------------------------
+    // createItems
+    private void createItems()
+    {
+        int i, j;
+        Item.createItems();
+#if false
+        int kinds = (int)IMacro.Item_Type.Max;
+        int num = Item.Max_itemNum;
+
+        ref string[] istr = ref IMacro.ItemName;
+        GameObject g;
+        GameObject parent = GameObject.Find("Items");
+        for (i = 0; i < kinds; i++)
+        {
+            for (j = 0; j < num; j++)
+            {
+                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
+                //g.GetComponent<SpriteRenderer>().sprite = null;
+
+                g.transform.SetParent(parent.transform);
+                g.transform.Translate(-100, -100, 0);
+                Item.itemList[i].Add(g.GetComponent<Item>());
+            }
+        }
+#endif
+    }
+
     //---------------------------------------------------------------------------
     // createMap
     private void createMap()
@@ -159,7 +188,6 @@ public class GameManager : MonoBehaviour
         float height = 0;
         Vector2 position = Vector2.zero;
 
-        //maps = new Map[num];
         Map.instance = new Map[num];
         maps = Map.instance;
 
@@ -244,9 +272,14 @@ public class GameManager : MonoBehaviour
 			{
                 g = Instantiate(Resources.Load("Prefabs/Map/MapObject/MapObject_NextDoor")) as GameObject;
                 g.GetComponent<MapObject>().initialize(i, maps[i].transform.position);
-                break;
             }
-		}
+
+            if (maps[i].state == MapState.shop)
+            {
+                GameObject sk = Instantiate(Resources.Load("Prefabs/Map/MapObject/Storekeeper")) as GameObject;
+                sk.GetComponent<Storekeeper>().init(i);
+            }
+        }
 #endif
     }
 
@@ -319,34 +352,6 @@ public class GameManager : MonoBehaviour
         }
         
 	}
-
-    //---------------------------------------------------------------------------
-    // createItems
-    private void createItems()
-    {
-        int i, j;
-        Item.createItems();
-#if false
-        int kinds = (int)IMacro.Item_Type.Max;
-        int num = Item.Max_itemNum;
-
-        ref string[] istr = ref IMacro.ItemName;
-        GameObject g;
-        GameObject parent = GameObject.Find("Items");
-        for (i = 0; i < kinds; i++)
-        {
-            for (j = 0; j < num; j++)
-            {
-                g = Instantiate(Resources.Load("Prefabs/Item/" + istr[i])) as GameObject;
-                //g.GetComponent<SpriteRenderer>().sprite = null;
-
-                g.transform.SetParent(parent.transform);
-                g.transform.Translate(-100, -100, 0);
-                Item.itemsBase[i].Add(g.GetComponent<Item>());
-            }
-        }
-#endif
-    }
 
     //---------------------------------------------------------------------------
     // passMap

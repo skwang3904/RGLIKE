@@ -29,6 +29,7 @@ public static class IMacro
 		room_1way3,
 
 		room_boss0,
+		room_shop,
 
 		MAX,
 	}
@@ -55,19 +56,10 @@ public static class IMacro
 		"room_1way3",
 
 		"room_boss0",
+		"room_shop",
 	};
 
 	//---------------------------------------------------------------
-
-	public enum Item_Type
-	{
-		Gold = 0,
-		Potion,
-
-		A,B,C,D,E,F,G,H,I,J,
-		None,
-		Max,
-	}
 
 	public static string[] ItemName =
 	{
@@ -111,6 +103,7 @@ public enum NonEntityState
 	Hurt,
 }
 
+// game object
 public enum MapObjectType
 {
 	wall = 0,
@@ -127,8 +120,20 @@ public enum MapState
 	shop,
 }
 
+public enum Item_Type
+{
+	Gold = 0,
+	Potion,
+
+	A, B, C, D, E, F, G, H, I, J,
+	None,
+	Max,
+}
+
+// inventory
 public enum InventorySlotType
 {
 	Nomal = 0,
 	Quick,
 }
+

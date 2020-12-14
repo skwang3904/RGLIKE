@@ -38,7 +38,7 @@ public class Inventory : MonoBehaviour
 	// mouse click
 
 	public float clickDt;
-	public const float _clickDt = 0.5f;
+	public const float _clickDt = 0.1f;
 
 	private void Awake()
 	{
@@ -139,8 +139,8 @@ public class Inventory : MonoBehaviour
 #if true // inven sort test
 		if (Input.GetKeyDown(KeyCode.G))
 		{
-			print(Item.itemsBase.Count);
-			foreach(Item item in Item.itemsBase)
+			print(Item.itemList.Count);
+			foreach(Item item in Item.itemList)
 			{
 				addItemInventory(item);
 			}
@@ -330,11 +330,12 @@ public class Inventory : MonoBehaviour
 		int i;
 		if (Input.GetMouseButtonDown(0))
 		{
+			Inventory_Slot slot;
 			// 인벤슬롯 검사
 			int n = list_invenSlot.Count;
 			for (i = 0; i < n; i++) 
 			{
-				Inventory_Slot slot = list_invenSlot[i];
+				slot = list_invenSlot[i];
 				if (slot.item == null)
 					continue;
 				
@@ -350,7 +351,7 @@ public class Inventory : MonoBehaviour
 			n = list_quickSlot.Count;
 			for (i = 0; i < n; i++) 
 			{
-				Inventory_Slot slot = list_quickSlot[i];
+				slot = list_quickSlot[i];
 				if (slot.item == null)
 					continue;
 
@@ -372,11 +373,14 @@ public class Inventory : MonoBehaviour
 				{
 					if (UIMouse.instance.imgClick.sprite == null)
 					{
-						UIMouse.instance.imgClick.sprite = 
+						if(UIMouse.instance.invenSlotClick.item != null)
+						{
+							UIMouse.instance.imgClick.sprite = 
 							UIMouse.instance.invenSlotClick.item.spriteRenderer.sprite;
 
-						UIMouse.instance.imgClick.color = IMacro.color_White;
-						UIMouse.instance.invenSlotClick.item.spriteRenderer.color = IMacro.color_White * 0.5f;
+							UIMouse.instance.imgClick.color = IMacro.color_White;
+							UIMouse.instance.invenSlotClick.item.spriteRenderer.color = IMacro.color_White * 0.5f;
+						}
 					}
 				}
 			}
@@ -388,12 +392,12 @@ public class Inventory : MonoBehaviour
 				if (clickDt < _clickDt)
 				{
 					//mci.clickSlot.useItem();
-					UIMouse.instance.invenSlotClick.useItem();
+					//UIMouse.instance.invenSlotClick.useItem();
 				}
 				else
 				{
 					bool check = true;
-					if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Nomal)
+					if (UIMouse.instance.invenSlotClick.slotType == InventorySlotType.Nomal)
 					{
 						// 인벤슬롯 검사
 						foreach (Inventory_Slot slot in list_invenSlot)
@@ -422,7 +426,7 @@ public class Inventory : MonoBehaviour
 						}
 
 					}
-					else if (UIMouse.instance.invenSlotClick.type == InventorySlotType.Quick)
+					else if (UIMouse.instance.invenSlotClick.slotType == InventorySlotType.Quick)
 					{
 						// 퀵슬롯 검사
 						foreach (Inventory_Slot slot in list_quickSlot)
@@ -445,6 +449,38 @@ public class Inventory : MonoBehaviour
 
 			clickDt = 0;
 			UIMouse.instance.declickInvenItem();
+		}
+
+		if (Input.GetMouseButtonDown(1))
+		{
+			foreach (Inventory_Slot slot in list_invenSlot)
+			{
+				if (!maskRectf.rect.Contains(slot.rectf.anchoredPosition))
+					continue;
+
+				if (slot.contain(Input.mousePosition))
+				{
+					UIMouse.instance.invenSlotClick = slot;
+					break;
+				}
+			}
+
+			if (UIMouse.instance.invenSlotClick == null)
+			{
+				foreach (Inventory_Slot slot in list_quickSlot)
+				{
+					if (slot.contain(Input.mousePosition))
+					{
+						UIMouse.instance.invenSlotClick = slot;
+						break;
+					}
+				}
+			}
+		}
+		else if (Input.GetMouseButtonUp(1))
+		{
+			if (UIMouse.instance.invenSlotClick != null)
+				UIMouse.instance.invenSlotClick.useItem();
 		}
 	}
 
@@ -470,15 +506,16 @@ public class Inventory : MonoBehaviour
 			}
 		}
 
-		Item item = Instantiate(it);
-		item.type = it.type;
-		item.strName = it.strName;
+
+		//Item item = Instantiate(it);
+		//item.type = it.type;
+		//item.strName = it.strName;
 
 		foreach (Inventory_Slot slot in list_invenSlot)
 		{
 			if (slot.item == null)
 			{
-				slot.addItem(item);
+				slot.addItem(it);
 				break;
 			}
 		}

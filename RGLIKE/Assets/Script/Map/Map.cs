@@ -10,7 +10,7 @@ public class Map : MonoBehaviour
 
 	public SpriteRenderer spriteRenderer;
 
-	private GameObject[] doors; // 맵의 각 문 // 딱히 없어도될듯?
+	private GameObject[] doors; // 맵의 각 문
 	private BoxCollider2D[] doorsCollider;
 	private SpriteRenderer[] doorSpriteRenderers; // 각 문의 스프라이트렌더러
 	private Sprite[,] doorSprites; // 문의 총 스프라이트 => 하나로 만들기
@@ -85,7 +85,7 @@ public class Map : MonoBehaviour
 		int i, j = 0;
 		player = Player.instance;
 
-		// 이 맵번호와 같은 맵번호를 가진 몬스터를 검사하여 문을 열거나 닫음
+		// 이 맵번호와 같은 맵번호를 가진 몬스터의 생존여부로 문을 열거나 닫음
 		int mNum = transform.Find("MonsterSpawn").childCount;
 
 		if (mapNumber != player.mapNumber)
@@ -109,7 +109,7 @@ public class Map : MonoBehaviour
 			int sqrt = ld.mapData.mapTotalSqrt;
 			int n = mapNumber;
 			
-			// 보스방 & 상점 검사
+			// 보스방 & 상점 연결된 맵 검사
 			if (n % sqrt == 0		 || check[n - 1] == false) doorLocked(0);
 			if (n % sqrt == sqrt - 1 || check[n + 1] == false) doorLocked(1);
 			if (n / sqrt == sqrt - 1 || check[n + sqrt] == false) doorLocked(2);

@@ -42,9 +42,12 @@ public class PlayerController : MonoBehaviour
         }
         
         // #issue 방향 입력 유지되는것 수정
-        moving = movement != Vector2.zero; 
+        moving = movement != Vector2.zero;
 
+        //if (Input.GetButton("Fire1"))
+        //    attacking = UIMouse.instance.gameScreenClick();
         attacking = Input.GetButton("Fire1");
+
         if (attacking)
 		{
             moving = false;

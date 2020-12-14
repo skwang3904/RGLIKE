@@ -112,17 +112,16 @@ public class MapData
             {
                 mapName[i] = IMacro.MAP_NAME.room_boss0;
                 mapStates[i] = MapState.boss;
-#if false // shop
+
                 for (j = i - mapTotalSqrt - 2; j > -1; j--)
 				{
                     if(maps[j])
 					{
-                        mapName[i] = IMacro.MAP_NAME.room_4way;
+                        mapName[i] = IMacro.MAP_NAME.room_shop;
                         mapStates[i] = MapState.shop;
                         break;
                     }
 				}
-#endif
                 break;
             }
         }

@@ -48,7 +48,7 @@ public class MapObject_SpikeTrap : MapObject
 
 	private void whenPlayerTouched()
 	{
-		player.onDamage(null);
+		Player.instance.onDamage(null);
 		isTouch = false;
 	}
 }

@@ -7,10 +7,12 @@ public class UIMouse : MonoBehaviour
 {
 	public static UIMouse instance;
 
+	// mouse image
 	private Sprite[] spritesMouse;
 	private Image img;
 	private Vector3 pos;
 
+	// inven click
 	public Inventory_Slot invenSlotClick;
 	public bool isClick;
 	public Image imgClick;
@@ -90,8 +92,26 @@ public class UIMouse : MonoBehaviour
 		}
 	}
 
+
 	//--------------------------------------------------------
+	// mouse click
+	public bool gameScreenClick()
+	{
+		// true = 게임화면 클릭
+		// false = UI 클릭
+#if false
+		RaycastHit2D ray = Physics2D.Raycast(Input.mousePosition, Vector2.zero);
+		if (ray.collider.tag == "UI")
+			return false;
+		else
+			return true;
+#else
+		return true;
+#endif
+	}
+
 	//--------------------------------------------------------
+	// inven click
 
 	public void clickInvenItem(Inventory_Slot slot)
 	{
@@ -108,7 +128,7 @@ public class UIMouse : MonoBehaviour
 	}
 
 	//--------------------------------------------------------
-	//--------------------------------------------------------
+	// item information
 
 	private void showInfo(Inventory_Slot slot)
 	{

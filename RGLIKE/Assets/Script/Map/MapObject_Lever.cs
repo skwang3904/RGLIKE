@@ -14,7 +14,7 @@ public class MapObject_Lever : MapObject
 
 	private void FixedUpdate()
 	{
-		if(touchBox.IsTouching(player.moveBox))
+		if(touchBox.IsTouching(Player.instance.moveBox))
 		{
 			if (Input.GetKeyDown(KeyCode.J))
 			{
@@ -32,6 +32,6 @@ public class MapObject_Lever : MapObject
 	{
 		Item.dropItem(mapNumber,
 			(Vector2)transform.position + Random.insideUnitCircle * 3,
-			IMacro.Item_Type.Gold, 1);
+			Item_Type.Gold, 1);
 	}
 }

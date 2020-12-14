@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class NonLivingEntity : MonoBehaviour
 {
-	public Player player { get; private set; }
 	public Animator animator { get; protected set; }
 	public SpriteRenderer spriteRenderer { get; protected set; }
 	public BoxCollider2D touchBox { get; protected set; }
@@ -19,8 +18,6 @@ public class NonLivingEntity : MonoBehaviour
 
 	protected virtual void Awake()
 	{
-		player = Player.instance;
-
 		animator = GetComponent<Animator>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		touchBox = GetComponent<BoxCollider2D>();
